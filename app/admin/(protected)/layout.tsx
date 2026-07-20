@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
@@ -30,9 +31,20 @@ export default async function ProtectedAdminLayout({
   return (
     <div className="min-h-screen bg-sand-50">
       <header className="flex items-center justify-between border-b border-marine-950/10 bg-white px-6 py-4">
-        <span className="font-display text-lg text-marine-950">
-          Leal Collection — Admin
-        </span>
+        <Link href="/admin/boats" className="flex items-center gap-3">
+          <Image
+            src="/images/brand/logo.webp"
+            alt="Leal Collection"
+            width={288}
+            height={362}
+            className="h-14 w-auto"
+            priority
+            unoptimized
+          />
+          <span className="font-display text-xl text-marine-950">
+            Leal Collection — Admin
+          </span>
+        </Link>
         <nav className="flex items-center gap-6 text-sm text-marine-900/80">
           <Link href="/admin/boats" className="hover:text-marine-950">
             Boats

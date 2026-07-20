@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DayPicker } from "react-day-picker";
@@ -47,6 +47,17 @@ function toDateOnly(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+function scrollToSection(ref: React.RefObject<HTMLElement | null>) {
+  const el = ref.current;
+  if (!el) return;
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+}
+
+const STEP_KEYS = ["stepDate", "stepSlot", "stepExtras", "stepDetails"] as const;
+
 export default function BookingFlow({
   locale,
   boat,
@@ -86,6 +97,13 @@ export default function BookingFlow({
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [furthestStep, setFurthestStep] = useState(1);
+
+  const dateSectionRef = useRef<HTMLElement | null>(null);
+  const slotSectionRef = useRef<HTMLElement | null>(null);
+  const extrasSectionRef = useRef<HTMLElement | null>(null);
+  const detailsSectionRef = useRef<HTMLElement | null>(null);
+  const stepRefs = [dateSectionRef, slotSectionRef, extrasSectionRef, detailsSectionRef];
 
   // Unpriced extras (price === 0, not included) aren't bookable yet — showing them as
   // checkboxes would let a customer add a real add-on for free.
@@ -122,12 +140,16 @@ export default function BookingFlow({
         if (firstOpen) setSlot(firstOpen);
       }
       syncUrl({ date: d });
+      setFurthestStep((step) => Math.max(step, 2));
+      scrollToSection(slotSectionRef);
     }
   }
 
   function handleSelectSlot(s: Slot) {
     setSlot(s);
     syncUrl({ slot: s });
+    setFurthestStep((step) => Math.max(step, 3));
+    scrollToSection(extrasSectionRef);
   }
 
   function toggleExtra(key: string) {
@@ -136,6 +158,15 @@ export default function BookingFlow({
     else next.add(key);
     setSelectedExtraKeys(next);
     syncUrl({ extraKeys: next });
+    setFurthestStep((step) => Math.max(step, 4));
+  }
+
+  function scrollToNextIncomplete() {
+    if (!date) {
+      scrollToSection(dateSectionRef);
+      return;
+    }
+    scrollToSection(detailsSectionRef);
   }
 
   const extraLines: ExtraLine[] = useMemo(
@@ -201,13 +232,40 @@ export default function BookingFlow({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-12 grid gap-12 md:grid-cols-[1.4fr_1fr]">
-      <div className="space-y-12">
-        <section>
+    <form onSubmit={handleSubmit} className="mt-12 grid min-w-0 gap-12 pb-24 md:grid-cols-[1.4fr_1fr] md:pb-0">
+      <nav
+        aria-label="Booking steps"
+        className="sticky top-0 z-30 mb-2 flex w-full min-w-0 gap-1 overflow-x-auto bg-sand-50/95 py-3 backdrop-blur md:relative md:col-span-2 md:bg-transparent md:backdrop-blur-none"
+      >
+        {STEP_KEYS.map((key, i) => {
+          const stepNum = i + 1;
+          const state =
+            stepNum < furthestStep ? "done" : stepNum === furthestStep ? "current" : "upcoming";
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => scrollToSection(stepRefs[i])}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-xs uppercase tracking-widest transition ${
+                state === "current"
+                  ? "border-marine-950 bg-marine-950 text-sand-50"
+                  : state === "done"
+                    ? "border-gold-500/60 text-gold-600"
+                    : "border-marine-950/15 text-marine-900/40"
+              }`}
+            >
+              {t(key)}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="min-w-0 space-y-12">
+        <section ref={dateSectionRef} id="date-section" className="scroll-mt-16 md:scroll-mt-0">
           <h2 className="text-sm uppercase tracking-[0.3em] text-gold-600">
             {t("stepDate")}
           </h2>
-          <div className="mt-4 inline-block rounded-sm border border-marine-950/10 p-4">
+          <div className="mt-4 inline-block overflow-x-auto rounded-sm border border-marine-950/10 p-3 sm:p-4">
             <DayPicker
               mode="single"
               selected={date}
@@ -224,7 +282,7 @@ export default function BookingFlow({
           </div>
         </section>
 
-        <section>
+        <section ref={slotSectionRef} id="slot-section" className="scroll-mt-16 md:scroll-mt-0">
           <h2 className="text-sm uppercase tracking-[0.3em] text-gold-600">
             {t("stepSlot")}
           </h2>
@@ -251,7 +309,7 @@ export default function BookingFlow({
           </div>
         </section>
 
-        <section>
+        <section ref={extrasSectionRef} id="extras-section" className="scroll-mt-16 md:scroll-mt-0">
           <h2 className="text-sm uppercase tracking-[0.3em] text-gold-600">
             {t("stepExtras")}
           </h2>
@@ -309,7 +367,7 @@ export default function BookingFlow({
           </div>
         </section>
 
-        <section>
+        <section ref={detailsSectionRef} id="details-section" className="scroll-mt-16 md:scroll-mt-0">
           <h2 className="text-sm uppercase tracking-[0.3em] text-gold-600">
             {t("stepDetails")}
           </h2>
@@ -417,6 +475,34 @@ export default function BookingFlow({
               : t("payButtonDisabled")}
         </button>
       </aside>
+
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-marine-950/10 bg-sand-50 px-6 py-4 md:hidden"
+        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      >
+        {date && priceAvailable ? (
+          <div className="text-sm">
+            <p className="text-marine-900/60">{t("summaryDeposit")}</p>
+            <p className="font-display text-lg text-marine-950">
+              {formatEuros(deposit, locale)}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-marine-900/60">{t("selectDatePrompt")}</p>
+        )}
+        <button
+          type={canSubmit ? "submit" : "button"}
+          onClick={canSubmit ? undefined : scrollToNextIncomplete}
+          disabled={submitting}
+          className="shrink-0 rounded-full bg-marine-950 px-6 py-3 text-sm uppercase tracking-widest text-sand-50 transition hover:bg-marine-900 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {submitting
+            ? t("submitting")
+            : canSubmit
+              ? t("payButton", { amount: formatEuros(deposit, locale) })
+              : t("continueButton")}
+        </button>
+      </div>
     </form>
   );
 }
