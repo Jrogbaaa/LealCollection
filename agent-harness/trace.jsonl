@@ -8,3 +8,7 @@
 {"ts": "2026-07-20T13:47:00Z", "role": "generator", "action": "found stray next dev process on port 3000 from main repo causing stale-code test runs; killed with owner confirmation via AskUserQuestion", "result": "ok, port 3000 freed"}
 {"ts": "2026-07-20T13:50:00Z", "role": "generator", "action": "rerun npx playwright test against worktree's own dev server", "result": "14/15 passing, 1 failure traced to BLOB_READ_WRITE_TOKEN being an empty string in .env.local, confirmed via direct curl reproduction"}
 {"ts": "2026-07-20T13:52:00Z", "role": "generator", "action": "asked owner whether to block on real token or ship code-complete with documented blocker", "result": "owner chose ship + document"}
+{"ts": "2026-07-20T14:15:00Z", "role": "generator", "action": "fix react-day-picker accent color via DayPicker style prop (wrapper-div override didn't reach nested .rdp-root)", "result": "ok, verified via getComputedStyle"}
+{"ts": "2026-07-20T14:20:00Z", "role": "generator", "action": "restyle included/ask-us extras as grid rows, reword askUsExtra copy in en/es", "result": "ok"}
+{"ts": "2026-07-20T14:22:00Z", "role": "generator", "action": "replace bg-gold-500 CTA fill with bg-marine-950/text-sand-50", "result": "ok"}
+{"ts": "2026-07-20T14:25:00Z", "role": "generator", "action": "run tsc -b, npm run build, npx vitest run", "result": "all pass: tsc clean, build clean, 18/18 vitest tests"}

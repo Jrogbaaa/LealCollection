@@ -20,6 +20,26 @@
         "e2e/admin.spec.ts has a new upload case that cleans up its own uploaded file"
       ],
       "status": "code-complete, blocked on real BLOB_READ_WRITE_TOKEN for end-to-end verification"
+    },
+    {
+      "id": "booking-page-design-cleanup",
+      "goal": "Fix three verified defects on /reserva: calendar accent color rendering as blue instead of brand marine/gold, broken-looking 'included/ask-us' extras copy block, and a bg-gold-500 button-fill violation of the gold-is-accent-only design rule",
+      "why_it_matters": "Trust and conversion at the highest-stakes point in the funnel — stray dev-note-sounding copy and off-brand blue calendar accents read as unfinished right before payment",
+      "non_goals": [
+        "Same CTA violation on homepage hero / fleet detail page (deferred by owner decision, tracked in TODOS.md)",
+        "Pricing the caviar extra (still open, unaffected)",
+        "Any change to booking/pricing/Stripe/blocked-dates logic",
+        "Any change to /reserva/gracias, fleet pages, or admin"
+      ],
+      "acceptance_criteria": [
+        "getComputedStyle on .rdp-root's --rdp-accent-color resolves to marine-700, not blue, in a live browser check",
+        "'today' marker and nav chevrons render in brand colors, not rgb(0,0,255)",
+        "Included/ask-us extras render as styled rows in the same card grid as priced extras, not disconnected captions",
+        "askUsExtra copy reworded away from dev-note phrasing in both en.json and es.json",
+        "Primary CTA button uses bg-marine-950/hover:bg-marine-900/text-sand-50, no bg-gold-500 fill remaining on /reserva",
+        "tsc -b, npm run build, npx vitest run all pass; relevant Playwright booking-flow spec passes"
+      ],
+      "status": "planned"
     }
   ]
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { DayPicker } from "react-day-picker";
@@ -61,6 +61,7 @@ export default function BookingFlow({
   blockedSlotsByDate: Record<string, Slot[]>;
 }) {
   const t = useTranslations("reserva");
+  const tExtras = useTranslations("extras");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -206,13 +207,19 @@ export default function BookingFlow({
           <h2 className="text-sm uppercase tracking-[0.3em] text-gold-600">
             {t("stepDate")}
           </h2>
-          <div className="mt-4 rdp-root inline-block rounded-sm border border-marine-950/10 p-4 [--rdp-accent-color:var(--color-marine-700)] [--rdp-today-color:var(--color-gold-600)]">
+          <div className="mt-4 inline-block rounded-sm border border-marine-950/10 p-4">
             <DayPicker
               mode="single"
               selected={date}
               onSelect={handleSelectDate}
               disabled={disabledMatchers}
               defaultMonth={date}
+              style={
+                {
+                  "--rdp-accent-color": "var(--color-marine-700)",
+                  "--rdp-today-color": "var(--color-gold-600)",
+                } as CSSProperties
+              }
             />
           </div>
         </section>
@@ -273,19 +280,33 @@ export default function BookingFlow({
                 </label>
               );
             })}
+            {includedExtras.map((extra) => (
+              <div
+                key={extra.key}
+                className="flex items-center justify-between gap-4 bg-sand-50 p-5"
+              >
+                <span className="text-marine-950">
+                  {locale === "es" ? extra.labelEs : extra.labelEn}
+                </span>
+                <span className="text-xs uppercase tracking-wide text-marine-900/50">
+                  {tExtras("included")}
+                </span>
+              </div>
+            ))}
+            {askUsExtras.map((extra) => (
+              <div
+                key={extra.key}
+                className="flex items-center justify-between gap-4 bg-sand-50 p-5"
+              >
+                <span className="text-marine-950">
+                  {locale === "es" ? extra.labelEs : extra.labelEn}
+                </span>
+                <span className="text-xs uppercase tracking-wide text-gold-600">
+                  {t("askUsExtra")}
+                </span>
+              </div>
+            ))}
           </div>
-          {includedExtras.length > 0 && (
-            <p className="mt-3 text-xs uppercase tracking-wide text-marine-900/50">
-              {includedExtras.map((e) => (locale === "es" ? e.labelEs : e.labelEn)).join(" · ")}
-            </p>
-          )}
-          {askUsExtras.length > 0 && (
-            <p className="mt-1 text-xs text-marine-900/40">
-              {askUsExtras.map((e) => (locale === "es" ? e.labelEs : e.labelEn)).join(" · ")}
-              {" "}
-              ({t("askUsExtra")})
-            </p>
-          )}
         </section>
 
         <section>
@@ -387,7 +408,7 @@ export default function BookingFlow({
         <button
           type="submit"
           disabled={!canSubmit}
-          className="mt-8 block w-full rounded-full bg-gold-500 px-8 py-4 text-center text-sm uppercase tracking-widest text-marine-950 transition hover:bg-gold-300 disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-8 block w-full rounded-full bg-marine-950 px-8 py-4 text-center text-sm uppercase tracking-widest text-sand-50 transition hover:bg-marine-900 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting
             ? t("submitting")

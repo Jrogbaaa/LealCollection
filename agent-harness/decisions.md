@@ -83,3 +83,14 @@
 - **Not fixing the `sortOrder` gap**: the add-image form never rendered a `sortOrder`
   input, so every image lands at 0 with no reorder UI. Real but pre-existing and unrelated
   to the upload mechanism — left in `TODOS.md` rather than folded into this change.
+
+## Booking page design cleanup (/reserva)
+
+- **Scope confirmed with owner (AskUserQuestion)**: the `bg-gold-500` button-fill violation
+  also exists on the homepage hero and fleet detail page, not just booking. Owner chose
+  booking-page-only for this pass; the other two instances are logged to `TODOS.md`, not
+  fixed here.
+- **"Ask us" pattern stays, only its presentation/copy changes**: per the earlier decision
+  above ("Caviar stays unpriced by instruction"), price-0 non-included extras are
+  intentionally not free checkboxes. This pass does not touch that logic — only how it's
+  rendered and worded.
