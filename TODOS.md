@@ -13,6 +13,21 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 `npx tsc -b` / `npm run build` / `npx vitest run` (18 tests) / `npx playwright test`
 (14 tests) all green.
 
+## Code-complete, blocked on a credential
+
+- **[ADMIN-IMAGE-UPLOAD] P1** — Boat image upload to Vercel Blob is fully built on
+  `feat/admin-boat-image-upload` (not yet merged): `app/api/admin/upload/route.ts`
+  (auth-gated token route), a client `ImageUpload` component, `deleteImage` now scoped to
+  `boatId` and deleting the underlying Blob file. `tsc -b` / `npm run build` /
+  `npx vitest run` (21/21) all pass; `npx playwright test` is 14/15 — the one failure is
+  **not a code bug**, it's `BLOB_READ_WRITE_TOKEN` in `.env.local` being a literal empty
+  string (`BLOB_READ_WRITE_TOKEN=""`), confirmed via a direct `curl` reproduction of
+  Vercel Blob's "no read-write token found" error. **Needs a real token** from the
+  project's Vercel dashboard → Storage tab → Blob store → `.env.local` tab, pasted into
+  both the worktree's and the main repo's `.env.local`. Once set, rerun
+  `npx playwright test` to confirm 15/15 and merge the branch. See
+  `agent-harness/findings.md` "Follow-up" section for the full trace.
+
 ## Owner input required (blocking)
 
 - **[PRICING] P0** — `boats.priceFullDay` / `priceMorning` / `priceAfternoon` are now set to
@@ -41,9 +56,10 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 - **[ADMIN-BLOCKED-DATES] P2** — Calendar UI over the `blocked_dates` table. The booking
   flow already reads and respects `blocked_dates` (both whole-day and per-slot blocks); only
   the admin authoring UI is missing.
-- **[ADMIN-IMAGE-UPLOAD] P2** — Boat image management currently takes a plain URL, not a
-  file upload — `BLOB_READ_WRITE_TOKEN` was never supplied. Swap in `@vercel/blob` once
-  it's available; the admin UI/DB shape doesn't need to change, just the add-image input.
+- **[ADMIN-IMAGE-SORT-ORDER] P3** — The boat image add form never renders a `sortOrder`
+  input (the server action reads it but nothing sets it), so every image lands at `0` with
+  no way to reorder. Pre-existing gap, noticed while building `[ADMIN-IMAGE-UPLOAD]` but
+  deliberately left out of that change as unrelated scope.
 - **[EXPERIENCIAS-PAGE] P2** — `/experiencias` page (linked in nav, doesn't exist yet).
 - **[CONTACTO-PAGE] P2** — `/contacto` page (linked in nav, doesn't exist yet).
 - **[LEGAL-PAGES] P2** — `/legal/*` (privacy policy, terms) — needed before taking real

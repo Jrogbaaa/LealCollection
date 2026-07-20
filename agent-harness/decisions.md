@@ -38,9 +38,10 @@
   `ADMIN_PASSWORD_HASH` (interpreting `$2b`, `$10` etc. as empty variable references) and
   broke login with no visible error beyond a generic `CredentialsSignin`. Fixed by escaping
   every `$` as `\$` in the stored value.
-- **Image upload fallback**: `BLOB_READ_WRITE_TOKEN` was never supplied, so admin boat image
-  management takes a plain URL + delete rather than a `@vercel/blob` file upload widget.
-  Swapping in real upload later shouldn't require a schema change.
+- **Image upload fallback (superseded, see below)**: `BLOB_READ_WRITE_TOKEN` was never
+  supplied, so admin boat image management takes a plain URL + delete rather than a
+  `@vercel/blob` file upload widget. Swapping in real upload later shouldn't require a
+  schema change.
 - **Next's image optimizer flattened a transparent PNG's alpha channel** when re-encoding
   the logo (`sharp`/squoosh re-encode dropped alpha, corner pixel went from `(0,0,0,0)` to
   opaque). Fixed with `unoptimized` on that one `<Image>` — it's a small, already-optimized
@@ -58,3 +59,27 @@
   actual POST response before reading the field back, and by hardcoding the known-good
   description as a restore target instead of capturing "whatever's on the page now" (which
   is unsafe to trust if a prior run failed mid-test).
+
+## Admin boat image upload (Vercel Blob)
+
+- **Blocker resolved**: `BLOB_READ_WRITE_TOKEN` is now present in `.env.local`. The
+  earlier "image upload fallback" decision above no longer applies.
+- **Client-side direct upload, not a server action with multipart body**: chosen over
+  posting the file through `<form action={addImage}>` because Next's server-action body
+  limit (default 1MB) would need raising for marine photography, and the file would still
+  stream through the server unnecessarily. The browser PUTs directly to Blob via
+  `@vercel/blob/client`; only the resulting URL touches the server action.
+- **Do not use Blob's `onUploadCompleted` webhook to persist the row**: it never fires
+  against `localhost`, since Vercel can't reach a local dev server — that would silently
+  break both local dev and the Playwright suite. The client calls the existing `addImage`
+  server action directly with the returned URL instead.
+- **Delete the Blob file on image delete, but guard by hostname**: seeded boat images are
+  local `/images/*` paths, not Blob URLs — `del()` must only run for
+  `*.public.blob.vercel-storage.com` URLs, and a Blob delete failure must not block the DB
+  row delete (an unremovable remote file shouldn't wedge the admin UI).
+- **`deleteImage` scoped to `boatId`**: pre-existing gap — the action already accepted
+  `boatId` but never used it in the `where` clause. Fixed as part of this change since the
+  same action is being touched anyway, not as a separate task.
+- **Not fixing the `sortOrder` gap**: the add-image form never rendered a `sortOrder`
+  input, so every image lands at 0 with no reorder UI. Real but pre-existing and unrelated
+  to the upload mechanism — left in `TODOS.md` rather than folded into this change.

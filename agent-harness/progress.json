@@ -1,6 +1,6 @@
 {
-  "current_feature": "core-p1-path",
-  "phase": "evaluator",
+  "current_feature": "admin-boat-image-upload",
+  "phase": "evaluator-pass-blocked-on-credential",
   "complete": [
     "Next.js 16 + Tailwind v4 scaffold, package renamed to leal-collection",
     "Agent harness ported from /Users/JackEllis/ui (prompts, contract, rubric, command)",
@@ -26,6 +26,7 @@
     "Real charter pricing confirmation (current 950e/600e is an estimate) — owner input needed",
     "Caviar snack price — owner input needed",
     "Real WhatsApp business number — owner input needed",
-    "Domain — owner input needed, blocks Resend sending-domain verification"
+    "Domain — owner input needed, blocks Resend sending-domain verification",
+    "admin-boat-image-upload: code complete (tsc/build/vitest 21/21/playwright 14/15 green), blocked on a real BLOB_READ_WRITE_TOKEN — .env.local currently has the key set to an empty string, not a real Vercel Blob token, so the upload path has never been verified against real Blob storage"
   ]
 }

@@ -1,0 +1,10 @@
+{"ts": "2026-07-20T13:16:00Z", "role": "generator", "action": "add @vercel/blob dependency, create /api/admin/upload token route", "result": "ok"}
+{"ts": "2026-07-20T13:20:00Z", "role": "generator", "action": "create client ImageUpload component, wire into boat edit page", "result": "ok"}
+{"ts": "2026-07-20T13:25:00Z", "role": "generator", "action": "scope deleteImage to boatId, add Blob file deletion guarded by lib/blob.ts isBlobUrl", "result": "ok"}
+{"ts": "2026-07-20T13:28:00Z", "role": "generator", "action": "add lib/blob.test.ts (3 tests) and e2e/admin.spec.ts upload case with fixture PNG", "result": "ok"}
+{"ts": "2026-07-20T13:30:00Z", "role": "generator", "action": "run tsc -b, npm run build, npx vitest run", "result": "all pass: tsc clean, build clean, 21/21 vitest tests"}
+{"ts": "2026-07-20T13:40:00Z", "role": "evaluator", "action": "run tsc/build/vitest/playwright, security review of upload route and delete guard", "result": "NEEDS REVISION: found e2e regression (import.meta.url crashes CJS transform, 14/14 -> 0/14), test coverage claim unverified"}
+{"ts": "2026-07-20T13:45:00Z", "role": "generator", "action": "fix e2e/admin.spec.ts to use plain __dirname instead of fileURLToPath(import.meta.url)", "result": "ok"}
+{"ts": "2026-07-20T13:47:00Z", "role": "generator", "action": "found stray next dev process on port 3000 from main repo causing stale-code test runs; killed with owner confirmation via AskUserQuestion", "result": "ok, port 3000 freed"}
+{"ts": "2026-07-20T13:50:00Z", "role": "generator", "action": "rerun npx playwright test against worktree's own dev server", "result": "14/15 passing, 1 failure traced to BLOB_READ_WRITE_TOKEN being an empty string in .env.local, confirmed via direct curl reproduction"}
+{"ts": "2026-07-20T13:52:00Z", "role": "generator", "action": "asked owner whether to block on real token or ship code-complete with documented blocker", "result": "owner chose ship + document"}

@@ -1,3 +1,25 @@
 {
-  "features": []
+  "features": [
+    {
+      "id": "admin-boat-image-upload",
+      "goal": "Replace admin's paste-a-URL image input with a real file upload to Vercel Blob",
+      "why_it_matters": "Admin efficiency — removes the need to host photos externally before adding them to a boat listing",
+      "non_goals": [
+        "Image reordering / sortOrder fix",
+        "Multi-file or drag-and-drop upload",
+        "Image cropping/resizing/compression",
+        "DB schema changes",
+        "Changes to public /fleet rendering"
+      ],
+      "acceptance_criteria": [
+        "Admin can upload a jpeg/png/webp file from the boat edit page and it lands in boat_images with a *.public.blob.vercel-storage.com URL",
+        "Uploaded image renders in admin images list and on /fleet",
+        "Deleting an image removes the Blob file in addition to the DB row (skipping non-Blob seeded URLs)",
+        "deleteImage is scoped to boatId, not just image id",
+        "tsc -b, npm run build, npx vitest run all pass",
+        "e2e/admin.spec.ts has a new upload case that cleans up its own uploaded file"
+      ],
+      "status": "code-complete, blocked on real BLOB_READ_WRITE_TOKEN for end-to-end verification"
+    }
+  ]
 }
