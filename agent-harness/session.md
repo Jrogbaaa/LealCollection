@@ -1,6 +1,84 @@
 # Session
 
-**State (current):** Generator phase complete for `booking-page-design-cleanup` in worktree
+**State (current):** Generator phase complete for `logo-visibility-mobile-nav-booking-ux`
+in worktree `/Users/JackEllis/worktrees/logo-mobile-flow` (branch `feat/logo-mobile-flow`).
+Built from an owner request ("logo too small / invisible on blue, mobile needs to be
+perfect, booking page step 2 isn't obvious"), run through the full harness per CLAUDE.md's
+gate (owner confirmed via AskUserQuestion, both on running the harness and on the logo's
+contrast treatment).
+
+- `components/site-header.tsx`: logo bumped from fixed 44×44px to responsive 48px→56px,
+  wordmark `text-lg`→`text-xl md:text-2xl`. On the `transparent` variant (dark hero), the
+  navy+gold logo asset is filtered `brightness(0) invert(1)` to a white silhouette —
+  verified live via `getComputedStyle` that the filter is actually applied, not just
+  eyeballed. `solid` variant unchanged (full color). Converted to `"use client"` and added
+  a hamburger menu (`md:hidden`) with a dropdown panel reusing the same 4 nav links —
+  previously there was no mobile nav at all.
+- `app/admin/(protected)/layout.tsx` and `app/admin/login/page.tsx`: added the same logo
+  (full color / white-filtered on the login page's dark `bg-marine-950`) — previously
+  text-only, no image.
+- `components/booking-flow.tsx`: added a sticky step-progress rail (reusing the existing
+  `stepDate`/`stepSlot`/`stepExtras`/`stepDetails` translation keys as pill labels,
+  current/done/upcoming states), auto-scroll on date-select → slot section and
+  slot-select → extras section (imperative in the click handlers, not an effect, so it
+  can't misfire on initial mount from URL-restored state; respects
+  `prefers-reduced-motion`), and a `position: fixed` mobile-only sticky bottom bar showing
+  running deposit total + a button that reads "Continue" (scrolls to the date or details
+  section, whichever's incomplete) or the real "Pay deposit — €X" submit once the form is
+  complete. Added a new `continueButton` key to `messages/en.json`/`es.json`.
+- **Found and fixed a real, pre-existing bug** (not introduced by this work — confirmed
+  worse, 16px, on the unmodified `main` branch): a horizontal page overflow at ≤375px
+  viewports, caused by `app/layout.tsx`'s `<body>` being `flex flex-col` combined with
+  `booking-flow.tsx`'s `<form className="grid ...">` — both flex and grid items default to
+  `min-width: auto`, so the day-picker calendar's intrinsic content width blew out the
+  layout instead of shrinking to the viewport. Fixed with `min-w-0` on `/reserva`'s `<main>`
+  and on the form's grid-item children (`nav` step rail, the steps wrapper `div`). Verified
+  via `document.body.scrollWidth` at a 360px viewport: 0px overflow after, vs. 16px before
+  any change. Also wrapped the `DayPicker` in `overflow-x-auto` per the original spec.
+  Logged in `decisions.md`.
+
+Verified in the worktree: `npx tsc -b` clean, `npm run build` clean, `npx vitest run`
+18/18 (no new unit tests needed — no pricing/logic changes). Manually driven via Playwright
+MCP at desktop (1280px), 375px, and 360px viewports: logo contrast confirmed via
+`getComputedStyle` on both header variants, hamburger menu open/close on both variants,
+full mobile booking flow (date→auto-scroll→slot→auto-scroll→extras, step rail
+current/done states, sticky CTA showing live deposit total and swapping to the real pay
+button) all confirmed working. Admin-authenticated pages (`/admin/boats`) verified by code
+review only, not manually browsed — left to the Evaluator's Playwright suite, which already
+has a credentialed admin login flow (`e2e/admin.spec.ts`), rather than handling admin
+credentials by hand.
+
+**Evaluator pass (separate subagent, isolated context):** first pass returned NEEDS
+REVISION — everything else confirmed correct (logo filter via real `getComputedStyle` on
+both header variants and both admin pages, auto-scroll, step rail, sticky CTA total/button
+swap, the 360px overflow fix reproduced-then-confirmed-fixed), but the mobile hamburger
+menu did not close on outside tap or Escape despite spec.md requiring it. Fixed with a
+`pointerdown`/`keydown` `useEffect` gated on `menuOpen`, scoped via a `headerRef` so link
+clicks inside the open panel aren't misread as "outside." A second separate Evaluator
+subagent re-verified just this fix live (both header variants, 375px) plus a full
+tsc/build/vitest/playwright re-run (14/14, no regressions) — **verdict: PASS**. Full detail
+in `findings.md`. One non-blocking note carried forward: no dedicated Playwright spec exists
+yet for the hamburger menu's open/outside-tap/Escape/link-navigate behavior — verified live
+via Playwright MCP, not by an automated regression test.
+
+**Post-evaluator owner feedback:** the resized logo (44px→56px box) still read as "not big
+at all." Root cause wasn't the display size — `public/images/brand/logo.webp`'s 500×500
+canvas had ~48% transparent padding baked in (measured via `PIL.Image.getbbox()`: real
+content was a 258×324 box). Re-cropped from `logo-source.png` with a 6% margin (288×362),
+then re-bumped display height on top of the crop (64px mobile/80px desktop in the site
+header, 56px in admin) since with the dead space gone the size change actually reads.
+Verified live across all four header combinations, admin login, and mobile — `tsc -b`,
+`npm run build`, `npx vitest run` (18/18) all still clean. Not re-run through a third
+Evaluator subagent pass (owner was reviewing directly in real time); logged in
+`decisions.md` instead.
+
+**Next action:** none — PR opened at
+https://github.com/Jrogbaaa/LealCollection/pull/2, branch `feat/logo-mobile-flow`, ready
+for review/merge.
+
+---
+
+**State (prior):** Generator phase complete for `booking-page-design-cleanup` in worktree
 `/Users/JackEllis/worktrees/booking-page-design-cleanup` (branch `feat/booking-page-design-cleanup`).
 Fixed 3 verified defects on `/reserva` found via live design review:
 - Calendar accent color: `react-day-picker`'s own `.rdp-root` div re-declares

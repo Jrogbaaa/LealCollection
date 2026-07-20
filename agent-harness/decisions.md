@@ -94,3 +94,48 @@
   above ("Caviar stays unpriced by instruction"), price-0 non-included extras are
   intentionally not free checkboxes. This pass does not touch that logic — only how it's
   rendered and worded.
+
+## Logo visibility, mobile nav, booking-flow mobile UX
+
+- **White silhouette via CSS filter, not a new asset (owner decision, AskUserQuestion)**:
+  `logo.webp` is a navy+gold emblem. Presented three options — CSS `brightness(0) invert(1)`
+  (ships immediately, loses gold on the hero), a commissioned light-on-dark asset (better
+  looking, needs approval round-trip), or a gold-tinted filter. Owner chose the CSS filter.
+  Confirmed the asset has a real alpha channel (RGBA, corner pixel `(0,0,0,0)`) so the filter
+  produces a clean silhouette, not a white box. `unoptimized` stays on the `<Image>` per the
+  earlier "Next's image optimizer flattened a transparent PNG's alpha channel" decision above
+  — this pass doesn't touch that flag.
+- **Full harness run, not a direct build (owner decision, AskUserQuestion)**: this touches
+  4+ files, adds a feature (mobile nav), and changes user-facing behavior, so it qualifies
+  under CLAUDE.md's harness gate. Owner confirmed running Planner → Generator → separate
+  Evaluator subagent rather than skipping to a direct build.
+- **Booking flow stays a single scrollable page**: fixing the "step 2 isn't obvious" problem
+  via auto-scroll + a persistent step-progress indicator + a sticky mobile CTA, not by
+  rebuilding into a JS-driven wizard that only shows one step at a time. Smaller change, no
+  risk to the existing URL-query-param sync (`syncUrl()` in `booking-flow.tsx`) that already
+  round-trips selections through the address bar.
+- **Found and fixed a pre-existing 8-16px horizontal page overflow at ≤375px** (real bug,
+  confirmed present on the unmodified `main` branch too — 16px there, worse than the 8px this
+  branch had mid-fix): `app/layout.tsx`'s `<body>` is `flex flex-col`, and `<main>`/its grid
+  children in `booking-flow.tsx`'s `<form className="grid ...">` default to `min-width: auto`,
+  so intrinsic content (the day-picker's calendar grid) blows out the flex/grid track instead
+  of shrinking to the viewport. Fixed with `min-w-0` on `/reserva`'s `<main>` and on the three
+  direct grid children of the booking `<form>` (`nav` step rail, the steps wrapper `div`, and
+  needed nowhere else since `aside` and the sticky mobile bar weren't contributors). This is
+  the standard fix for the classic flexbox/grid `min-width: auto` overflow bug — not a
+  workaround. Verified via `document.body.scrollWidth` at 360px: 0 overflow after, vs. 16px
+  before any change on `main`.
+- **Sticky mobile CTA bar uses `position: fixed`, not `sticky`**: a fixed element is removed
+  from grid/flex flow entirely, so it doesn't contribute to the intrinsic-size overflow above
+  and doesn't need the `min-w-0` treatment.
+- **Cropped `logo.webp` itself (owner feedback after first pass)**: bumping the header's
+  display box from 44px to 56px didn't read as "bigger" because the source asset had ~48%
+  transparent padding baked into its 500×500 canvas — the actual emblem+wordmark content
+  only occupied a 258×324 bounding box. Measured via `PIL.Image.getbbox()`. Re-cropped from
+  the higher-fidelity `logo-source.png` (same 500×500 RGBA) with a 6% margin, producing a
+  288×362 asset that now fills its display box. `unoptimized` and the RGBA/transparent
+  background are preserved (still hits the same "Next's optimizer flattens transparent PNG
+  alpha" landmine noted above if that flag is ever removed). Display height bumped again on
+  top of the crop — 64px mobile / 80px desktop in the site header, 56px in admin — since with
+  the dead space gone this size reads as genuinely bigger, not just a fixed-box change.
+  Original uncropped file backed up outside the repo before overwriting, not committed.

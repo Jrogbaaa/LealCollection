@@ -340,3 +340,271 @@ Playwright tests, and no scope drift beyond the three approved fixes.
 Log the deferred homepage-hero / fleet-detail-page `bg-gold-500` CTA violation as a
 `TODOS.md` item (per spec.md's non-goals note) if not already tracked there, so it isn't
 lost as a follow-up design-cleanup pass.
+
+## Logo visibility, mobile nav, booking-flow mobile UX
+
+**Original goal:** Make the header logo legible on every background (especially the dark
+hero, where the navy mark nearly disappears), add a real logo to admin pages that currently
+have none, add a mobile nav menu (there is none below `md`), and make `/reserva`'s
+multi-step structure visible and navigable on mobile (no step indicator, no scroll cues, CTA
+buried below all four sections).
+
+**Non-goals:** Commissioning a new logo asset (CSS filter on the existing `logo.webp`
+instead); any change to booking/pricing/Stripe/`blocked_dates` logic; any change to
+`/reserva/gracias`; the already-deferred sitewide `bg-gold-500` CTA violations on
+homepage/fleet detail; rebuilding the booking flow into a JS-driven step wizard.
+
+**Acceptance criteria (featurelist.json):** `getComputedStyle` confirms the logo filter
+(`brightness(0) invert(1)`) on the transparent header variant, not eyeballed; full
+navy/gold color unchanged on the solid variant; logo appears on admin login and admin
+protected layout (previously text-only); hamburger menu appears below `md`, opens/closes,
+links navigate, keyboard-focusable; on `/reserva` mobile, date selection auto-scrolls to
+slot section, slot selection auto-scrolls to extras section, `prefers-reduced-motion` skips
+smooth scroll; step-progress indicator visible and reflects state; sticky mobile CTA bar
+present throughout, swaps to real pay button once complete; calendar doesn't clip at 360px;
+`tsc -b`/`build`/`vitest`/`playwright` all pass; zero new console errors.
+
+Worktree evaluated: `/Users/JackEllis/worktrees/logo-mobile-flow` (branch
+`feat/logo-mobile-flow`), diff against `main`, uncommitted working-tree changes across 7
+files (191 insertions / 37 deletions).
+
+### Test Results
+- `npx tsc -b`: 0 errors
+- `npm run build`: clean, all 15 routes compiled (Turbopack)
+- `npx vitest run`: 18/18 passing (unchanged — no pricing/logic touched, correctly no new
+  unit tests added)
+- `npx playwright test`: **14/14 passing** — but this is the pre-existing suite unchanged.
+  **No new Playwright spec was added for any of this change's new behavior** (logo filter,
+  hamburger menu, auto-scroll, step rail, sticky CTA bar, the overflow fix). All of the
+  claims below were verified live, out-of-band, via Playwright MCP browser tooling against
+  the worktree's own dev server (confirmed on port 3001, matched by inspecting raw HTML
+  `width`/`height`/`style` attributes against the source diff) — not by an automated
+  regression test that will catch a future break.
+- Zero console errors observed across every page/interaction exercised below (one
+  pre-existing, unrelated LCP-loading warning on `/en/fleet` about the hero image, present
+  on `main` too — not a new error from this change).
+
+### Live verification (adversarial, not just eyeballing)
+- **Logo filter, transparent variant:** `getComputedStyle` on the header `<img>` at
+  `/en` → `filter: "brightness(0) invert(1)"`, `48px × 48px` (mobile-width box). Same on
+  `/en/fleet/cranchi-32` (boat detail, also transparent) → `brightness(0) invert(1)`.
+- **Logo filter, solid variant:** `/en/fleet` → `filter: "none"`. `/en/reserva` →
+  `filter: "none"`. Both correct per spec.
+- **Admin logo:** scripted a real login (credentials read from `.env.local`, never
+  printed) — `/admin/login` renders the logo with `filter: brightness(0) invert(1)` (dark
+  `bg-marine-950`); after login, `/admin/boats`' protected-layout header renders the logo
+  with `filter: none` (light `bg-white`). Both previously text-only, now both have a real
+  `<img>`, both correctly matched to their background.
+- **Horizontal overflow claim (decisions.md):** verified independently rather than trusted.
+  At 360px viewport on the **unmodified `main` branch** (separate running dev server, port
+  3000, confirmed on `main` via `git branch --show-current`), `document.body.scrollWidth` =
+  376 vs `window.innerWidth` = 360 → **16px overflow, reproduced**. Same check on this
+  worktree's branch at 360px: `scrollWidth` = `innerWidth` = 360 → **0px overflow**. The
+  decisions.md claim is accurate and the fix works.
+- **Mobile nav (hamburger):** at 360px on `/en` (transparent variant), clicking the
+  hamburger reveals a panel with all 4 links (Fleet/Experiences/Contact/Reserve); clicking
+  a link navigates and closes the panel. Confirmed keyboard-focusable (native `<button>`
+  and `<a>` elements, no `tabindex="-1"` or similar).
+  **However:** the spec explicitly requires the menu "closes on selection **or outside
+  tap**." Outside-tap close is **not implemented** — confirmed both by reading the diff (no
+  `mousedown`/`pointerdown`/click-outside listener anywhere in the component, no `useEffect`
+  wiring one up) and behaviorally (dispatched a real click on `document.body` while the
+  panel was open; the panel remained in the DOM, unclosed). This is a genuine, confirmed gap
+  against an explicit spec.md line, not a nitpick — a mobile user who opens the menu and
+  taps elsewhere on the page (the natural dismiss gesture) gets a menu stuck open over the
+  page content. Also no Escape-key handler.
+- **Booking flow step rail:** on `/en/reserva` at 375px, the rail renders "1. Choose a
+  date / 2. Choose a time / 3. Add extras / 4. Your details" (via the existing
+  `stepDate`/etc. keys, correctly localized structure). Before any selection, step 1 is
+  "current" (marine fill). After selecting a date, step 1 flips to "done" (gold border/text)
+  and step 2 becomes "current" (marine fill) — reflects state correctly.
+- **Auto-scroll:** clicking an enabled calendar date auto-scrolled the page so
+  `#slot-section`'s bounding-rect top landed at 64px (in-view, just below the sticky rail) —
+  confirmed via `getBoundingClientRect()` immediately after the click, not a fixed sleep.
+  `prefers-reduced-motion` handling confirmed in source (`window.matchMedia(...).matches`
+  gates `behavior: "smooth"` vs `"auto"`); not independently re-verified with the media
+  feature actually toggled in the browser (would require CDP emulation not exercised in this
+  pass), but the code path is a one-line ternary and unambiguous on inspection.
+- **Sticky mobile CTA bar:** present at 375px throughout, `md:hidden`. Before a date is
+  picked: "Select a date to see pricing / Continue". After picking a date (which
+  auto-selects the only open slot on this seed data) but before filling the details form:
+  still "Continue" (correctly not yet the pay button — form incomplete). After filling
+  name/email/phone/guests via real Playwright `fill()` calls: bar text becomes "Deposit due
+  today (50%) €475 / Pay deposit — €475", `type="submit"`, and the equivalent desktop
+  `<aside>` button also flips from disabled to enabled at the same moment — both driven by
+  the same `canSubmit` boolean, no duplicated validation logic. Matches spec exactly.
+- **Calendar clipping:** `DayPicker` is wrapped in `overflow-x-auto` per the diff; combined
+  with the `min-w-0` overflow fix above, no clipping observed at 360px in the live browser
+  check (calendar grid fully visible, no horizontal scrollbar on the page).
+
+### Critical Issues
+None. (The outside-tap-close gap below is a confirmed, real miss against an explicit spec
+requirement, but it is not a critical/blocking defect — the menu is still fully usable via
+selecting a link, which is the primary path — so it's tracked as a Missing Requirement, not
+a Critical Issue.)
+
+### Bugs
+None found that affect correctness of data, pricing, or navigation. See UX Issues for the
+one real gap.
+
+### UX Issues
+- **Mobile nav does not close on outside tap**, contradicting spec.md's explicit "closes on
+  selection or outside tap." A user who opens the menu and taps the hero/page behind it
+  (the natural way to dismiss almost any mobile dropdown) is left with the panel stuck open
+  until they either pick a link or resize past `md`. Low effort to fix (one `useEffect` with
+  a `mousedown`/`pointerdown` listener checking `event.target` against a `ref`, or a
+  full-panel-height invisible backdrop `<div>` behind the nav that closes on click).
+
+### Missing Requirements
+- Outside-tap-close on the mobile hamburger menu (see UX Issues) — spec.md line item, not
+  met.
+- No new Playwright coverage was added for any of this pass's new behavior (logo filter,
+  hamburger open/close, auto-scroll, step rail, sticky CTA, the overflow fix). Everything
+  was verified manually in this evaluation pass via Playwright MCP tooling, which is not
+  automated regression protection — a future change could silently reintroduce the overflow
+  bug, break the auto-scroll, or regress the logo filter and nothing in `npx playwright
+  test` would catch it. `session.md` acknowledges this was "manually driven via Playwright
+  MCP," but the featurelist/spec's acceptance criteria don't explicitly demand new automated
+  specs, so this is noted as a gap worth closing rather than a spec violation.
+
+### Scope Drift
+None. Diff touches exactly the 7 files named in the task (`site-header.tsx`, both admin
+files, `booking-flow.tsx`, `reserva/page.tsx`, both message files) plus the documented,
+justified `min-w-0` overflow fix — which decisions.md correctly frames as a pre-existing bug
+found and fixed while already touching the same layout, not unrelated scope creep. No
+pricing/Stripe/blocked-dates/`/reserva/gracias` files touched.
+
+### Rubric Scores
+| Area | Score |
+|---|---|
+| 0. Goal Alignment | 4 (all three stated goals — logo, mobile nav, booking-flow mobile UX — are substantively delivered and verified live; docked from 5 for the outside-tap gap and missing automated coverage) |
+| 1. Requirement Fit | 4 (one explicit spec line — outside-tap close — not met) |
+| 2. Simplicity | 5 (imperative scroll calls in click handlers, not effects; `position: fixed` sticky bar deliberately kept out of grid/flex flow instead of needing extra overflow fixes; no wizard rebuild) |
+| 3. User Workflow | 4 (booking flow mobile UX is genuinely improved and verified working end-to-end; the stuck-open menu is a real but minor friction point) |
+| 4. Data Integrity | 5 (no data paths touched; sticky bar and desktop submit share one `canSubmit` boolean, no duplicated validation) |
+| 5. Error Handling | 5 (guests-over-capacity message still renders; disabled-state handling on both submit buttons correct) |
+| 6. Security / Privacy | 5 (admin credentials read from `.env.local` and never printed in this evaluation; no PII/secrets in the diff) |
+| 7. Maintainability | 5 (clear component structure, reused existing translation keys, `STEP_KEYS` array avoids repetition) |
+
+Average: 4.6.
+
+### Closing Question
+**Did this accomplish the stated goal?** Substantially yes — the logo is now legible on
+every background (verified via `getComputedStyle`, not eyeballing, on all 4 page/variant
+combinations plus both admin pages), the pre-existing 360px overflow bug is genuinely fixed
+(reproduced 16px overflow on `main`, confirmed 0px on this branch), and the booking flow's
+step structure, auto-scroll, and sticky CTA all work as specified and were independently
+verified. The one real miss is the outside-tap-close requirement on the mobile menu, which
+is explicit in spec.md and simply wasn't built.
+
+### Verdict
+**NEEDS REVISION**
+
+Goal Alignment scores 4 (meets the ≥4 bar), and the average (4.6) clears ≥4, and there are
+no critical bugs or privacy failures — but "all high-priority acceptance criteria satisfied"
+is not true: the mobile-nav outside-tap-close is explicitly named in spec.md's "What success
+looks like" and is verifiably absent. Per the Pass Rule, all of the listed conditions must
+hold, so this does not clear the bar as-is. This is a small, well-scoped gap, not a
+fundamental rework.
+
+### Recommended Next Generator Task
+1. In `components/site-header.tsx`, add outside-tap dismissal to the mobile menu: either (a)
+   a `useEffect` that adds a `mousedown`/`pointerdown` listener on `document` while
+   `menuOpen` is true, checks `event.target` against a `ref` on the nav panel (and the
+   toggle button, to avoid double-toggling), and calls `setMenuOpen(false)` on an outside
+   hit — removing the listener on close/unmount; or (b) a full-viewport invisible backdrop
+   `<div>` rendered behind the panel (below it in the DOM, `fixed inset-0`, `z-index` under
+   the panel) with an `onClick={() => setMenuOpen(false)}`. Also add an `Escape` keydown
+   handler while open, since spec.md calls out keyboard-focusable and a stuck-open menu
+   dismissible only by picking a link is a keyboard trap in practice.
+2. Re-verify with the same live check used in this evaluation: open the menu at ≤375px,
+   dispatch a real click outside the panel, confirm it closes; confirm it still closes on
+   link selection (no regression); confirm `Escape` closes it and returns focus to the
+   toggle button.
+3. Optional but recommended, not a blocker: add a small Playwright spec (or extend
+   `e2e/public-site.spec.ts`) covering hamburger open → outside-tap-close and open →
+   link-navigates, plus a `document.body.scrollWidth <= innerWidth` assertion at 360/375px
+   on `/reserva`, so this pass's fixes have automated regression protection instead of
+   relying on the Evaluator's one-time manual pass.
+
+## Re-verification: outside-tap / Escape close fix (2026-07-20)
+
+**Scope of this pass:** re-verify only the single outstanding item from the prior NEEDS
+REVISION verdict above — the mobile hamburger menu did not close on outside tap or Escape.
+Everything else in the prior pass (logo filter, admin logos, overflow fix, step rail,
+auto-scroll, sticky CTA) was already verified PASS-equivalent and was not re-checked here.
+
+**Fix applied by Generator:** `components/site-header.tsx` now has a `headerRef` on the
+`<header>` element and a `useEffect` keyed on `menuOpen` that, only while the menu is open,
+adds a `pointerdown` listener (closes if `e.target` is outside `headerRef.current`) and a
+`keydown` listener (closes on `Escape`), both on `document`, with both listeners removed in
+the effect's cleanup function.
+
+### Structural review
+- Listener lifecycle is correct: `if (!menuOpen) return;` at the top of the effect means no
+  listeners are ever attached while the menu is closed; the returned cleanup function always
+  removes both listeners, covering both the "menu closes" and "component unmounts while menu
+  open" cases. No leak.
+- Outside-tap detection uses `headerRef.current.contains(e.target)` — since the mobile nav
+  panel (`<nav>` with the links) is rendered *inside* `<header ref={headerRef}>`, a tap on a
+  link inside the open panel is "inside" the header, so the `pointerdown` handler does not
+  fire `setMenuOpen(false)` itself; the existing per-`<Link>` `onClick={() => setMenuOpen(false)}`
+  still does the closing for that case, so the two mechanisms don't fight each other.
+- Desktop nav (`hidden md:flex`) has no `menuOpen`-gated markup or handlers of its own — the
+  new listeners only affect the `menuOpen` boolean and the mobile-only conditional panel, so
+  desktop rendering/behavior is unaffected. Confirmed by reading the full diff; no changes
+  outside the described `useEffect`, `headerRef`, and its wiring onto `<header ref={headerRef}>`.
+
+### Live verification (Playwright MCP, 375×700 viewport)
+Both dev servers were already running (worktree on :3001, main repo on :3000 — unrelated,
+left alone). Tested both header variants:
+
+**Transparent header (`/en`):**
+- (a) Hamburger click opens the panel (button toggles "Open menu" → "Close menu", 4 links
+  render). Confirmed via accessibility snapshot.
+- (b) A real click on an element far outside the header (the footer "Chat on WhatsApp" link,
+  chosen because the absolutely-positioned dropdown panel visually covers the hero section
+  near the top of the page and intercepts pointer events there) closed the menu — button
+  reverted to "Open menu", nav panel removed from the tree.
+- (c) Reopened the menu, pressed `Escape` — button reverted to "Open menu" immediately.
+- (d) Reopened the menu, clicked the "Fleet" link inside the open panel — page navigated to
+  `/en/fleet` (title/URL changed), confirming the pre-existing close-on-link-click behavior
+  still works and wasn't broken by the new outside-click listener.
+
+**Solid header (`/en/reserva`):**
+- (a) Hamburger click opens the panel — confirmed.
+- (c) `Escape` closes it — confirmed.
+- (b) A real click on the page's "Continue" button (far below the header, outside its
+  dropdown panel, and itself unaffected by the click since the sticky CTA correctly ignored
+  the stray tap given no fields were filled) closed the menu — confirmed via snapshot showing
+  "Open menu" restored.
+
+All four required behaviors confirmed on both variants. No new console errors observed
+during any of the above interactions.
+
+### Automated test results (worktree, this pass)
+- `npx tsc -b`: 0 errors
+- `npm run build`: clean, all 15 routes compiled (Turbopack)
+- `npx vitest run`: **18/18 passing** (unchanged — no logic files touched by this fix)
+- `npx playwright test`: **14/14 passing** (unchanged pre-existing suite; still no dedicated
+  automated spec for the hamburger menu itself — see prior pass's Missing Requirements note,
+  which still stands as a non-blocking gap)
+
+### Findings
+None. The fix is structurally sound, does not conflict with the existing close-on-link-click
+behavior, does not touch desktop nav, and all four required interactions were confirmed live
+in a real browser on both header variants. No regressions in `tsc`/`build`/`vitest`/`playwright`.
+
+### Updated Verdict
+**PASS**
+
+The single outstanding item from the prior NEEDS REVISION verdict (outside-tap and Escape
+close) is now confirmed fixed, with no new issues introduced. Combined with the prior pass's
+already-verified logo/admin-logo/overflow/step-rail/auto-scroll/sticky-CTA work, the feature
+`logo-visibility-mobile-nav-booking-ux` is ready to ship as-is.
+
+### Recommended Next Generator Task (non-blocking, carried forward)
+Add a small Playwright spec covering hamburger open → outside-tap-close, open → Escape-close,
+and open → link-navigates, so this fix has automated regression protection instead of relying
+on manual/MCP verification (this was already noted as a gap in the prior pass and remains
+true here — nothing in this diff added such coverage).

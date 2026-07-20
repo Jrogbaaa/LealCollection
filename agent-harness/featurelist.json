@@ -40,6 +40,30 @@
         "tsc -b, npm run build, npx vitest run all pass; relevant Playwright booking-flow spec passes"
       ],
       "status": "evaluator-pass-complete, tsc/build/vitest/playwright all green (18/18, 14/14), PR open"
+    },
+    {
+      "id": "logo-visibility-mobile-nav-booking-ux",
+      "goal": "Bigger/contrast-safe header logo on every page including admin, a mobile nav menu (currently none), and a self-advancing/scroll-cued booking flow on /reserva for mobile",
+      "why_it_matters": "The logo is nearly invisible on the dark hero (navy mark on navy background) and undersized everywhere; mobile has zero nav below md; /reserva's single long form gives first-time mobile users no signal there are 4 steps, risking bounce right before payment",
+      "non_goals": [
+        "Commissioning a new logo asset (CSS filter on the existing logo.webp instead)",
+        "Any change to booking/pricing/Stripe/blocked-dates logic",
+        "Any change to /reserva/gracias",
+        "The already-deferred sitewide bg-gold-500 CTA violations on homepage/fleet detail",
+        "Rebuilding the booking flow into a JS-driven step wizard"
+      ],
+      "acceptance_criteria": [
+        "getComputedStyle confirms the logo filter (brightness(0) invert(1)) is applied on the transparent header variant, not just visually eyeballed",
+        "Logo renders full navy/gold color unchanged on the solid variant",
+        "Logo appears on admin login and admin protected layout, previously text-only",
+        "Hamburger menu appears below md, opens/closes, links navigate, keyboard-focusable",
+        "On /reserva mobile: date selection auto-scrolls to slot section, slot selection auto-scrolls to extras section, prefers-reduced-motion skips smooth scroll",
+        "Step-progress indicator visible and reflects current/completed steps",
+        "Sticky mobile CTA bar present throughout the form, swaps to real pay button once complete",
+        "Calendar does not clip at 360px viewport width",
+        "tsc -b, npm run build, npx vitest run, npx playwright test all pass; zero new console errors"
+      ],
+      "status": "PR open at https://github.com/Jrogbaaa/LealCollection/pull/2 (branch feat/logo-mobile-flow) — evaluator-pass-complete (PASS after one revision loop for menu outside-tap/Escape dismissal) plus a post-pass logo-crop fix from direct owner feedback, tsc/build/vitest/playwright all green (18/18, 14/14)"
     }
   ]
 }
