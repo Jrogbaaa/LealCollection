@@ -70,6 +70,11 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   now-generated `AUTH_SECRET`, `STRIPE_WEBHOOK_SECRET` from the *production* Stripe webhook
   endpoint — the current one is a local `stripe listen` secret and won't work in prod),
   domain attached once `[DOMAIN]` is resolved.
+- **[CTA-GOLD-FILL] P3** — `bg-gold-500` solid-fill CTA buttons on the homepage hero
+  (`app/[locale]/page.tsx`) and fleet detail page (`app/[locale]/fleet/[slug]/page.tsx`)
+  violate CLAUDE.md's "gold is an accent only, never a button fill" rule. Same defect was
+  fixed on `/reserva` in the `booking-page-design-cleanup` pass; owner deferred fixing the
+  other two instances to a follow-up (scope decision recorded in `agent-harness/decisions.md`).
 
 ## SEO / AI search — deferred, needs dedicated research pass
 
