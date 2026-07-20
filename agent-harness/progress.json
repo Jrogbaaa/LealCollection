@@ -1,0 +1,31 @@
+{
+  "current_feature": "core-p1-path",
+  "phase": "evaluator",
+  "complete": [
+    "Next.js 16 + Tailwind v4 scaffold, package renamed to leal-collection",
+    "Agent harness ported from /Users/JackEllis/ui (prompts, contract, rubric, command)",
+    "CLAUDE.md / AGENTS.md written for this project",
+    "Cranchi 32 photography extracted from PDF via poppler, optimized to WebP (9 gallery images)",
+    "Logo replaced with background-removed version, converted to WebP",
+    "Neon Postgres schema (Drizzle) pushed: boats, boat_images, extras, bookings (+locale), booking_extras, blocked_dates",
+    "Seed data + estimated pricing applied: Cranchi 32 (950e/600e/600e), champagne 90e, caviar TBD, towels included, skipper 250e",
+    "next-intl locale routing (en/es), proxy.ts (Next 16 rename from middleware.ts)",
+    "lib/pricing.ts + lib/booking-reference.ts, 18 passing Vitest unit tests total",
+    "Brand design tokens (marine blue / gold / sand) in globals.css",
+    "Homepage, /fleet, /fleet/[slug] — real pricing, EN/ES verified",
+    "/reserva booking flow: react-day-picker calendar, blocked-dates aware, live pricing, URL-shareable selection state",
+    "Stripe Checkout integration: app/api/checkout (server-recomputed totals), app/api/webhooks/stripe (signature-verified, idempotent)",
+    "Admin: Auth.js credentials provider (fails closed if unconfigured), boat CRUD, image add/delete, bookings list with status filter + cancel",
+    "Resend email confirmations (customer + owner), fired from the webhook, locale-aware",
+    "Root layout split into app/layout.tsx (html/body) + app/[locale]/layout.tsx (i18n) so /admin has a valid render tree",
+    "Playwright suite (14 tests) + Vitest webhook idempotency test (synthetically-signed Stripe event)",
+    "npm run build / npx tsc -b clean; live Stripe test-mode payment + Resend email verified end-to-end"
+  ],
+  "in_progress": [],
+  "blocked": [
+    "Real charter pricing confirmation (current 950e/600e is an estimate) — owner input needed",
+    "Caviar snack price — owner input needed",
+    "Real WhatsApp business number — owner input needed",
+    "Domain — owner input needed, blocks Resend sending-domain verification"
+  ]
+}

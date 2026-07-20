@@ -1,0 +1,91 @@
+{
+  "nav": {
+    "fleet": "Fleet",
+    "experiences": "Experiences",
+    "reserve": "Reserve",
+    "contact": "Contact"
+  },
+  "home": {
+    "heroKicker": "Ibiza, Balearic Islands",
+    "heroTitle": "Private yacht charters, done properly",
+    "heroSubtitle": "One vessel. One standard. A skippered day on the water — from Marina Ibiza to Formentera's turquoise shallows.",
+    "heroCta": "Reserve your day",
+    "fleetKicker": "The Vessel",
+    "fleetTitle": "Cranchi 32",
+    "fleetCta": "View the boat",
+    "extrasKicker": "On Board",
+    "extrasTitle": "The Leal experience",
+    "extrasSubtitle": "Every charter is a blank canvas. Add what makes the day yours.",
+    "ctaTitle": "Ready for your day on the water?",
+    "ctaSubtitle": "Check availability and reserve online in minutes.",
+    "ctaButton": "Check availability"
+  },
+  "extras": {
+    "champagne": "Champagne on board",
+    "caviar_snack": "Luxury caviar snack",
+    "towel_service": "Towel service",
+    "skipper": "Skipper",
+    "included": "Included"
+  },
+  "boat": {
+    "capacity": "{count} guests",
+    "cabins": "{count} cabin",
+    "length": "{count} ft",
+    "priceOnRequest": "Price on request",
+    "fromPrice": "From {price} / half day"
+  },
+  "fleet": {
+    "kicker": "The Fleet",
+    "title": "One vessel, one standard",
+    "subtitle": "We run a small fleet on purpose — every charter gets the same attention, on the water and off.",
+    "viewBoat": "View the boat",
+    "homeMarina": "Home marina",
+    "fullDay": "Full day",
+    "halfDay": "Half day",
+    "reserveCta": "Reserve this boat",
+    "specsKicker": "The Boat",
+    "onBoardKicker": "On Board",
+    "backToFleet": "Back to the fleet"
+  },
+  "footer": {
+    "tagline": "Fine Yachting, Ibiza",
+    "rights": "All rights reserved."
+  },
+  "reserva": {
+    "kicker": "Reserve",
+    "title": "Your day on the water",
+    "stepDate": "1. Choose a date",
+    "stepSlot": "2. Choose a time",
+    "stepExtras": "3. Add extras",
+    "askUsExtra": "ask us about this one",
+    "stepDetails": "4. Your details",
+    "slotFullDay": "Full day",
+    "slotMorning": "Morning",
+    "slotAfternoon": "Afternoon",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "guests": "Guests",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Anything we should know — celebrations, dietary notes, pickup point…",
+    "summaryTitle": "Summary",
+    "summaryBoat": "Boat",
+    "summaryDate": "Date",
+    "summarySlot": "Time",
+    "summarySubtotal": "Subtotal",
+    "summaryDeposit": "Deposit due today (50%)",
+    "summaryBalance": "Balance due before boarding",
+    "selectDatePrompt": "Select a date to see pricing",
+    "payButton": "Pay deposit — {amount}",
+    "payButtonDisabled": "Choose a date to continue",
+    "submitting": "Redirecting to secure payment…",
+    "errorGeneric": "Something went wrong — please try again or WhatsApp us.",
+    "guestsOverCapacity": "This boat holds up to {capacity} guests.",
+    "priceUnavailable": "Pricing for this boat isn't set yet — please WhatsApp us to book.",
+    "confirmationTitle": "Deposit received",
+    "confirmationBody": "Thank you — your reservation {reference} is confirmed. A confirmation email is on its way, and the balance is due before boarding.",
+    "confirmationBackHome": "Back to home",
+    "confirmationPending": "We're confirming your payment — this can take a moment. If this doesn't update shortly, WhatsApp us with your reference.",
+    "confirmationNotFound": "We couldn't find that reservation. If you completed a payment, WhatsApp us and we'll sort it out."
+  }
+}

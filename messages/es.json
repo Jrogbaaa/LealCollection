@@ -1,0 +1,91 @@
+{
+  "nav": {
+    "fleet": "Flota",
+    "experiences": "Experiencias",
+    "reserve": "Reservar",
+    "contact": "Contacto"
+  },
+  "home": {
+    "heroKicker": "Ibiza, Islas Baleares",
+    "heroTitle": "Chárteres privados de yates, hechos como es debido",
+    "heroSubtitle": "Una embarcación. Un único estándar. Un día en el mar con patrón — desde Marina Ibiza hasta las aguas turquesas de Formentera.",
+    "heroCta": "Reserva tu día",
+    "fleetKicker": "La Embarcación",
+    "fleetTitle": "Cranchi 32",
+    "fleetCta": "Ver el barco",
+    "extrasKicker": "A Bordo",
+    "extrasTitle": "La experiencia Leal",
+    "extrasSubtitle": "Cada chárter es un lienzo en blanco. Añade lo que haga tuyo el día.",
+    "ctaTitle": "¿Listo para tu día en el mar?",
+    "ctaSubtitle": "Consulta disponibilidad y reserva online en minutos.",
+    "ctaButton": "Consultar disponibilidad"
+  },
+  "extras": {
+    "champagne": "Champán a bordo",
+    "caviar_snack": "Snack de caviar de lujo",
+    "towel_service": "Servicio de toallas",
+    "skipper": "Patrón",
+    "included": "Incluido"
+  },
+  "boat": {
+    "capacity": "{count} personas",
+    "cabins": "{count} camarote",
+    "length": "{count} pies",
+    "priceOnRequest": "Precio a consultar",
+    "fromPrice": "Desde {price} / medio día"
+  },
+  "fleet": {
+    "kicker": "La Flota",
+    "title": "Una embarcación, un único estándar",
+    "subtitle": "Mantenemos una flota reducida a propósito: cada chárter recibe la misma atención, en el mar y en tierra.",
+    "viewBoat": "Ver el barco",
+    "homeMarina": "Marina base",
+    "fullDay": "Día completo",
+    "halfDay": "Medio día",
+    "reserveCta": "Reservar este barco",
+    "specsKicker": "El Barco",
+    "onBoardKicker": "A Bordo",
+    "backToFleet": "Volver a la flota"
+  },
+  "footer": {
+    "tagline": "Fine Yachting, Ibiza",
+    "rights": "Todos los derechos reservados."
+  },
+  "reserva": {
+    "kicker": "Reservar",
+    "title": "Tu día en el mar",
+    "stepDate": "1. Elige una fecha",
+    "stepSlot": "2. Elige un horario",
+    "stepExtras": "3. Añade extras",
+    "askUsExtra": "consúltanos por este",
+    "stepDetails": "4. Tus datos",
+    "slotFullDay": "Día completo",
+    "slotMorning": "Mañana",
+    "slotAfternoon": "Tarde",
+    "name": "Nombre completo",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "guests": "Personas",
+    "notes": "Notas (opcional)",
+    "notesPlaceholder": "Cualquier cosa que debamos saber: celebraciones, dietas, punto de recogida…",
+    "summaryTitle": "Resumen",
+    "summaryBoat": "Barco",
+    "summaryDate": "Fecha",
+    "summarySlot": "Horario",
+    "summarySubtotal": "Subtotal",
+    "summaryDeposit": "Depósito a pagar hoy (50%)",
+    "summaryBalance": "Saldo a pagar antes de embarcar",
+    "selectDatePrompt": "Selecciona una fecha para ver el precio",
+    "payButton": "Pagar depósito — {amount}",
+    "payButtonDisabled": "Elige una fecha para continuar",
+    "submitting": "Redirigiendo al pago seguro…",
+    "errorGeneric": "Algo salió mal — inténtalo de nuevo o escríbenos por WhatsApp.",
+    "guestsOverCapacity": "Este barco admite hasta {capacity} personas.",
+    "priceUnavailable": "El precio de este barco aún no está disponible — escríbenos por WhatsApp para reservar.",
+    "confirmationTitle": "Depósito recibido",
+    "confirmationBody": "Gracias — tu reserva {reference} está confirmada. Recibirás un correo de confirmación en breve, y el saldo se abona antes de embarcar.",
+    "confirmationBackHome": "Volver al inicio",
+    "confirmationPending": "Estamos confirmando tu pago — puede tardar un momento. Si esto no se actualiza pronto, escríbenos por WhatsApp con tu referencia.",
+    "confirmationNotFound": "No pudimos encontrar esa reserva. Si completaste un pago, escríbenos por WhatsApp y lo solucionamos."
+  }
+}

@@ -1,0 +1,58 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth, signOut } from "@/lib/auth";
+
+export default async function ProtectedAdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Fail closed: if the admin credentials aren't configured, auth() has nothing to check
+  // sessions against and must never be trusted to fail safe on its own (see AUTH_SECRET
+  // incident in agent-harness/decisions.md — an unset secret let this route render with no
+  // session check at all).
+  if (!process.env.AUTH_SECRET || !process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD_HASH) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-marine-950 px-6 text-center">
+        <p className="max-w-sm text-sm text-white/70">
+          Admin is not configured yet — set AUTH_SECRET, ADMIN_EMAIL and
+          ADMIN_PASSWORD_HASH in .env.local.
+        </p>
+      </main>
+    );
+  }
+
+  const session = await auth();
+  if (!session) {
+    redirect("/admin/login");
+  }
+
+  return (
+    <div className="min-h-screen bg-sand-50">
+      <header className="flex items-center justify-between border-b border-marine-950/10 bg-white px-6 py-4">
+        <span className="font-display text-lg text-marine-950">
+          Leal Collection — Admin
+        </span>
+        <nav className="flex items-center gap-6 text-sm text-marine-900/80">
+          <Link href="/admin/boats" className="hover:text-marine-950">
+            Boats
+          </Link>
+          <Link href="/admin/bookings" className="hover:text-marine-950">
+            Bookings
+          </Link>
+          <form
+            action={async () => {
+              "use server";
+              await signOut({ redirectTo: "/admin/login" });
+            }}
+          >
+            <button type="submit" className="hover:text-marine-950">
+              Sign out
+            </button>
+          </form>
+        </nav>
+      </header>
+      <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+    </div>
+  );
+}

@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-marine-950: #0e2233;
+  --color-marine-900: #123049;
+  --color-marine-700: #1b6699;
+  --color-marine-500: #2b7fb8;
+  --color-marine-200: #bcdcef;
+
+  --color-gold-600: #a8814f;
+  --color-gold-500: #c69c6d;
+  --color-gold-300: #ddbd8f;
+  --color-gold-100: #f2e6d4;
+
+  --color-sand-50: #fafaf8;
+  --color-sand-100: #f4f2ed;
+
+  --background: var(--color-sand-50);
+  --foreground: var(--color-marine-950);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-marine-950: var(--color-marine-950);
+  --color-marine-900: var(--color-marine-900);
+  --color-marine-700: var(--color-marine-700);
+  --color-marine-500: var(--color-marine-500);
+  --color-marine-200: var(--color-marine-200);
+
+  --color-gold-600: var(--color-gold-600);
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-300: var(--color-gold-300);
+  --color-gold-100: var(--color-gold-100);
+
+  --color-sand-50: var(--color-sand-50);
+  --color-sand-100: var(--color-sand-100);
+
+  --font-display: var(--font-cormorant);
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
 }
