@@ -78,6 +78,7 @@
     "selectDatePrompt": "Select a date to see pricing",
     "payButton": "Pay deposit — {amount}",
     "payButtonDisabled": "Choose a date to continue",
+    "continueButton": "Continue",
     "submitting": "Redirecting to secure payment…",
     "errorGeneric": "Something went wrong — please try again or WhatsApp us.",
     "guestsOverCapacity": "This boat holds up to {capacity} guests.",

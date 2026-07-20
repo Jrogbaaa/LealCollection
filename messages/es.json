@@ -78,6 +78,7 @@
     "selectDatePrompt": "Selecciona una fecha para ver el precio",
     "payButton": "Pagar depósito — {amount}",
     "payButtonDisabled": "Elige una fecha para continuar",
+    "continueButton": "Continuar",
     "submitting": "Redirigiendo al pago seguro…",
     "errorGeneric": "Algo salió mal — inténtalo de nuevo o escríbenos por WhatsApp.",
     "guestsOverCapacity": "Este barco admite hasta {capacity} personas.",

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { signIn } from "@/lib/auth";
@@ -27,7 +28,19 @@ export default async function AdminLoginPage({
   return (
     <main className="flex min-h-screen items-center justify-center bg-marine-950 px-6">
       <div className="w-full max-w-sm rounded-sm border border-white/10 p-8">
-        <h1 className="font-display text-2xl text-white">Leal Collection — Admin</h1>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/images/brand/logo.webp"
+            alt="Leal Collection"
+            width={288}
+            height={362}
+            className="h-14 w-auto"
+            style={{ filter: "brightness(0) invert(1)" }}
+            priority
+            unoptimized
+          />
+          <h1 className="font-display text-2xl text-white">Leal Collection — Admin</h1>
+        </div>
         <form action={login} className="mt-8 space-y-4">
           <input
             required
