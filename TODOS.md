@@ -13,6 +13,14 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 `npx tsc -b` / `npm run build` / `npx vitest run` (18 tests) / `npx playwright test`
 (14 tests) all green.
 
+## Shipped mobile admin follow-up
+
+- **[ADMIN-MOBILE-UX] P1 — complete.** The protected admin header no longer overlaps at
+  360px, boats/bookings use readable mobile records while preserving desktop tables,
+  editor image rows stay contained, and a 360px Playwright regression covers all existing
+  admin routes. Separate Evaluator verdict: PASS (`tsc` and build clean, Vitest 18/18,
+  Playwright 15/15, focused 360px/1280px checks green).
+
 ## Code-complete, blocked on a credential
 
 - **[ADMIN-IMAGE-UPLOAD] P1** — Boat image upload to Vercel Blob is fully built on
@@ -65,7 +73,9 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 - **[LEGAL-PAGES] P2** — `/legal/*` (privacy policy, terms) — needed before taking real
   payments in production.
 - **[LIGHTHOUSE-PASS] P2** — No performance/SEO audit run yet (Lighthouse ≥95 target from
-  the original spec). Functional E2E coverage exists; performance doesn't yet.
+  the original spec). Functional E2E coverage exists; performance doesn't yet. The mobile
+  review also reproduced Next's LCP warning for the fleet-detail hero image, which should be
+  included in this pass.
 - **[DEPLOY] P2** — Vercel project setup, env vars mirrored from `.env.local` (including the
   now-generated `AUTH_SECRET`, `STRIPE_WEBHOOK_SECRET` from the *production* Stripe webhook
   endpoint — the current one is a local `stripe listen` secret and won't work in prod),
@@ -75,6 +85,27 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   violate CLAUDE.md's "gold is an accent only, never a button fill" rule. Same defect was
   fixed on `/reserva` in the `booking-page-design-cleanup` pass; owner deferred fixing the
   other two instances to a follow-up (scope decision recorded in `agent-harness/decisions.md`).
+
+## Newly identified review follow-ups
+
+- **[RATE-LIMITING] P1** — Add rate limits/abuse controls to credential sign-in and the
+  public checkout endpoint before production. Today an automated client can repeatedly
+  attempt admin passwords or create pending booking rows and Stripe Checkout sessions.
+- **[CHECKOUT-FAILURE-CLEANUP] P1** — Checkout inserts the pending booking and extras before
+  calling Stripe. If Stripe session creation fails, that pending record is left without a
+  `stripe_session_id`. Add a compensating cleanup path or an explicit failed/expired booking
+  lifecycle, plus a regression test.
+- **[SEO-BASELINE] P1** — Generic metadata exists, but the baseline launch hygiene promised
+  below is incomplete: no sitemap, robots route, EN/ES hreflang alternates, or locale-specific
+  title/description are present. This does not require the deferred keyword/AI-search research.
+- **[DEPENDENCY-AUDIT] P2** — `npm audit` reports 6 moderate advisories (no high/critical),
+  currently through the Next/PostCSS and Drizzle/esbuild toolchains. The suggested automatic
+  fixes are incompatible downgrades, so triage supported upstream upgrades instead of running
+  `npm audit fix --force`.
+- **[ADMIN-LOGIN-A11Y] P2** — Admin login inputs are placeholder-only and have no associated
+  labels. Add visible or screen-reader labels and keep the current mobile sizing.
+- **[LINT-WARNING] P3** — Remove the pre-existing unused `extras` import from
+  `app/api/checkout/route.ts`; ESLint is otherwise clean.
 
 ## SEO / AI search — deferred, needs dedicated research pass
 

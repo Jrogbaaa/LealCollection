@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Leal Collection
 
-## Getting Started
+Public marketing and online booking site for Leal Collection, an Ibiza luxury yacht
+charter business, with an authenticated admin portal for managing boats and reservations.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router, React, TypeScript, and Tailwind CSS
+- Neon Postgres with Drizzle ORM
+- Stripe Checkout for the 50% booking deposit
+- Resend for booking confirmation emails
+- Auth.js credentials authentication for the single admin account
+- next-intl for English and Spanish localized routes
+- Vitest and Playwright for automated verification
+
+## Current capabilities
+
+- Localized home, fleet, boat-detail, booking, and confirmation routes
+- Blocked-date-aware booking flow with server-recomputed integer-cent pricing
+- Stripe Checkout creation and signature-verified, idempotent webhook handling
+- Customer and owner confirmation emails
+- Auth-gated boat CRUD, image records, booking filters, and booking cancellation
+- Responsive public and admin layouts, including 360px admin regression coverage
+
+The remaining launch work, credential blockers, and owner decisions are tracked in
+[TODOS.md](./TODOS.md). Important implementation decisions and test evidence live in
+[agent-harness](./agent-harness/).
+
+## Local setup
+
+Install dependencies:
+
+```bash
+npm ci
+```
+
+Create `.env.local` with the required local credentials:
+
+```dotenv
+DATABASE_URL=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+AUTH_SECRET=
+ADMIN_EMAIL=
+ADMIN_PASSWORD_HASH=
+E2E_ADMIN_PASSWORD=
+```
+
+`E2E_ADMIN_PASSWORD` is only needed for authenticated admin Playwright coverage. Keep all
+secrets in `.env.local` and the matching Vercel environment variables; never commit them.
+When storing a bcrypt hash locally, escape each `$` as `\$` because Next.js expands dollar
+expressions while loading environment files.
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The public site is available at `http://localhost:3000/en` and `/es`; the admin entry point
+is `http://localhost:3000/admin`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The schema source of truth is [`db/schema.ts`](./db/schema.ts). Apply schema changes only
+through Drizzle:
 
-## Learn More
+```bash
+npm run db:push
+npm run db:seed
+```
 
-To learn more about Next.js, take a look at the following resources:
+Do not make schema changes through a SQL console. All monetary values are stored as integer
+cents, and `lib/pricing.ts` is the single pricing source of truth.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Verification
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx tsc -b
+npm run lint
+npm run build
+npx vitest run
+npx playwright test
+```
 
-## Deploy on Vercel
+The latest admin-mobile pass completed with a clean TypeScript/build result, 18/18 Vitest
+tests, and 15/15 Playwright tests. See
+[`agent-harness/findings.md`](./agent-harness/findings.md) for the evaluator record.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The intended target is Vercel. Before production, complete the `[DEPLOY]` and owner-input
+items in [TODOS.md](./TODOS.md), use a production Stripe webhook secret rather than the
+local `stripe listen` secret, configure the sending domain in Resend, and add the legal and
+baseline SEO routes.

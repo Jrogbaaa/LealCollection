@@ -30,8 +30,8 @@ export default async function ProtectedAdminLayout({
 
   return (
     <div className="min-h-screen bg-sand-50">
-      <header className="flex items-center justify-between border-b border-marine-950/10 bg-white px-6 py-4">
-        <Link href="/admin/boats" className="flex items-center gap-3">
+      <header className="flex flex-col gap-3 border-b border-marine-950/10 bg-white px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+        <Link href="/admin/boats" className="flex min-w-0 items-center gap-3">
           <Image
             src="/images/brand/logo.webp"
             alt="Leal Collection"
@@ -41,11 +41,11 @@ export default async function ProtectedAdminLayout({
             priority
             unoptimized
           />
-          <span className="font-display text-xl text-marine-950">
+          <span className="font-display text-lg leading-tight text-marine-950 sm:text-xl">
             Leal Collection — Admin
           </span>
         </Link>
-        <nav className="flex items-center gap-6 text-sm text-marine-900/80">
+        <nav className="flex w-full items-center justify-between gap-4 border-t border-marine-950/10 pt-3 text-sm text-marine-900/80 md:w-auto md:justify-start md:gap-6 md:border-0 md:pt-0">
           <Link href="/admin/boats" className="hover:text-marine-950">
             Boats
           </Link>
@@ -64,7 +64,9 @@ export default async function ProtectedAdminLayout({
           </form>
         </nav>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+      <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        {children}
+      </main>
     </div>
   );
 }

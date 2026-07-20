@@ -1,5 +1,38 @@
 # Session
 
+**State (current):** Generator phase complete for `admin-mobile-ux` in worktree
+`/Users/JackEllis/worktrees/admin-mobile-ux` (branch `codex/admin-mobile-ux`). The live
+360px audit reproduced three defects on `main`: overlapping protected-header content,
+127px of page overflow on `/admin/bookings`, and 47px of overflow from image rows on the
+boat editor.
+
+- The protected layout now stacks brand and navigation below `md`, with a separated,
+  full-width three-action nav. It returns to the existing side-by-side layout at `md`.
+- Boats and bookings render labelled record cards below `md`; the existing semantic tables
+  remain unchanged at `md` and above. All booking data and the cancel action are present in
+  both treatments, and the empty-bookings state remains explicit in both.
+- Long image paths now truncate within `min-w-0` rows and the delete actions stay visible.
+- `e2e/admin.spec.ts` adds a credentialed 360px regression covering header separation,
+  responsive visibility, and zero page-level overflow on boats, bookings, new-boat, and
+  edit-boat routes.
+
+Verified by the Generator: live browser checks at 360px and 1280px; `npx tsc -b` clean;
+`npm run build` clean; `npx vitest run` 18/18; `npx playwright test` 15/15. ESLint has no
+errors and one pre-existing warning in `app/api/checkout/route.ts` for an unused `extras`
+import. No pricing, auth, data, or server-action behavior changed.
+
+**Evaluator pass (separate subagent):** PASS with no required revisions. It independently
+reran TypeScript/build, Vitest (18/18), Playwright (15/15), lint, and focused 360px/1280px
+checks for header separation, responsive record/table visibility, form containment, empty
+states, and a synthetic long image URL. A final semantic-only Deposit `dt`/`dd` nesting
+adjustment was separately rechecked with TypeScript and the admin Playwright suite (6/6);
+PASS remained unchanged. Full detail is in `findings.md`.
+
+**Next action:** none — implementation, evaluator review, documentation reconciliation,
+and publication to `main` are complete.
+
+---
+
 **State (current):** Generator phase complete for `logo-visibility-mobile-nav-booking-ux`
 in worktree `/Users/JackEllis/worktrees/logo-mobile-flow` (branch `feat/logo-mobile-flow`).
 Built from an owner request ("logo too small / invisible on blue, mobile needs to be

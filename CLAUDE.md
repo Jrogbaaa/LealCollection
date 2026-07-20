@@ -26,10 +26,10 @@ plan and rationale.
 
 ## Deferred Work
 
-See [TODOS.md](./TODOS.md) for everything not yet built (fleet pages, booking flow, Stripe,
-admin portal, emails, SEO) and every item still blocked on owner input (real pricing,
-WhatsApp number, domain). Keep it current: close items as they ship, add items as scope
-grows. Don't let `agent-harness/session.md`'s "next action" drift out of sync with it.
+See [TODOS.md](./TODOS.md) for remaining launch work, deferred admin/public features,
+production hardening, and every item still blocked on owner input (real pricing, WhatsApp
+number, domain). Keep it current: close items as they ship, add items as scope grows. Don't
+let `agent-harness/session.md`'s "next action" drift out of sync with it.
 
 ## Coding Guidelines
 

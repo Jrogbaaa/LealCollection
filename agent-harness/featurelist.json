@@ -64,6 +64,27 @@
         "tsc -b, npm run build, npx vitest run, npx playwright test all pass; zero new console errors"
       ],
       "status": "PR open at https://github.com/Jrogbaaa/LealCollection/pull/2 (branch feat/logo-mobile-flow) — evaluator-pass-complete (PASS after one revision loop for menu outside-tap/Escape dismissal) plus a post-pass logo-crop fix from direct owner feedback, tsc/build/vitest/playwright all green (18/18, 14/14)"
+    },
+    {
+      "id": "admin-mobile-ux",
+      "goal": "Make every existing admin route usable at 360px without page-level overflow, overlapping navigation, crushed tables, or off-screen image actions while preserving the desktop experience",
+      "why_it_matters": "Admin efficiency and operational reliability — boat and booking management must remain readable and actionable from a phone",
+      "non_goals": [
+        "New admin capabilities such as blocked dates, extras editing, image sorting, search, or pagination",
+        "Database, pricing, Stripe, email, auth, or server-action behavior changes",
+        "Public-site redesign",
+        "Resolving the Vercel Blob credential blocker"
+      ],
+      "acceptance_criteria": [
+        "Protected admin header does not overlap at 360px and retains its desktop layout at md and above",
+        "Boats and bookings render readable mobile records with all existing data and actions, with desktop tables preserved",
+        "Empty booking results remain explicit on mobile and desktop",
+        "Boat editor image rows stay within 360px and long URLs cannot push Delete off-screen",
+        "No page-level horizontal overflow on boats, bookings, new-boat, or edit-boat routes at 360px",
+        "Playwright includes 360px regression coverage for the affected admin routes",
+        "tsc -b, npm run build, npx vitest run, and npx playwright test pass"
+      ],
+      "status": "shipped to main after evaluator PASS; tsc/build clean, Vitest 18/18, Playwright 15/15, focused 360px/1280px checks green, final semantic follow-up confirmed with admin Playwright 6/6"
     }
   ]
 }

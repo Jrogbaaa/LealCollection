@@ -608,3 +608,145 @@ Add a small Playwright spec covering hamburger open → outside-tap-close, open 
 and open → link-navigates, so this fix has automated regression protection instead of relying
 on manual/MCP verification (this was already noted as a gap in the prior pass and remains
 true here — nothing in this diff added such coverage).
+
+## Admin mobile UX and overflow (2026-07-20)
+
+**Original goal:** Make every existing admin route usable at a 360px-wide viewport without
+page-level horizontal overflow, overlapping navigation, crushed data tables, or off-screen
+image actions, while preserving the existing desktop admin experience.
+
+**Non-goals:** New admin capabilities; database, pricing, Stripe, email, auth, or
+server-action behavior changes; a public-site redesign; changes to customer PII fields or
+their auth boundary; resolving the separate Vercel Blob credential blocker.
+
+**Acceptance criteria:** The protected header must not overlap at 360px and must retain its
+desktop layout at `md` and above; boats and bookings must expose all existing data/actions as
+readable mobile records while preserving the desktop tables; empty bookings must be explicit
+in both treatments; long image URLs must truncate without moving Delete off-screen; the
+boats list, bookings list, new-boat form, and edit-boat form must have no body-level overflow
+at 360px; Playwright must cover the affected routes at 360px; TypeScript, build, Vitest, and
+the full Playwright suite must pass.
+
+### Goal Alignment Verdict
+
+**PASS.** The implementation addresses each reproduced mobile failure with responsive-only
+layout changes and leaves the desktop data treatments and all server/data behavior intact.
+
+### Test Results
+
+- `.env.local`: present (contents not recorded)
+- `npx tsc -b`: passed, 0 errors
+- `npm run build`: passed
+- `npx vitest run`: 18/18 passed across 3 test files
+- `npx playwright test`: 15/15 passed; no failing specs
+- `npm run lint`: passed with 0 errors and 1 pre-existing warning in
+  `app/api/checkout/route.ts`
+- Focused headless responsive audit: passed at 360px and 1280px on admin login, boats,
+  bookings, new-boat, and edit-boat views
+
+The first Playwright launch did not run because an already-running worktree dev server held
+Next's development lock while the configured port was unavailable. After confirming the
+process belonged to this worktree and allowing it to stop, an isolated rerun started the
+correct worktree server and passed all 15 specs. This was an infrastructure collision, not
+a product/test failure.
+
+### Acceptance-Criteria Audit
+
+- **Protected header:** at 360px the brand and nav occupy separate rows with a 12px gap;
+  both remain wholly within the viewport. At 1280px the computed header flex direction is
+  `row`, preserving the prior side-by-side desktop treatment.
+- **Boats:** mobile cards expose name, slug, full-day price, publication state, and Edit;
+  the card list is visible and desktop table hidden at 360px, with the inverse confirmed at
+  1280px.
+- **Bookings:** mobile cards expose reference, boat, date/slot, customer details, deposit,
+  status, and Cancel where applicable. Filter controls wrap cleanly. The mobile list is
+  visible and desktop table hidden at 360px, with the inverse confirmed at 1280px.
+- **Empty bookings:** `No bookings yet.` is rendered independently in both the mobile list
+  and desktop table empty branches.
+- **Image rows:** a focused browser check replaced the displayed URL in-memory with a very
+  long Blob-shaped URL. The row remained from x=16 to x=344, Delete ended at x=331, and the
+  URL retained computed `overflow: hidden`, `white-space: nowrap`, and
+  `text-overflow: ellipsis`. No application or database data was changed.
+- **Form controls:** login, new-boat, and edit-boat controls remained within the 360px
+  viewport; no visible input, textarea, or button crossed either viewport edge.
+- **Overflow:** `document.body.scrollWidth` equalled `window.innerWidth` (360px) on login,
+  boats, bookings, new-boat, and edit-boat. The only element-level geometry outlier found on
+  bookings was Next's development indicator, which is fixed tooling injected only by the
+  dev server and did not alter body scroll width.
+- **Regression coverage:** `e2e/admin.spec.ts` adds an authenticated 360px test covering
+  mobile/desktop treatment visibility, header separation, and body overflow on boats,
+  bookings, new-boat, and edit-boat routes.
+
+### Critical Issues
+
+None.
+
+### Bugs
+
+None found.
+
+### UX Issues
+
+None found. The mobile records remain readable and actionable, the booking filters wrap,
+the admin header is visually separated, and image Delete actions remain reachable.
+
+### Missing Requirements
+
+None. The new regression test does not individually synthesize a long URL, force an empty
+booking result, or assert desktop geometry, but those states were verified by source review
+and focused headless checks in this evaluation. This is a non-blocking opportunity to make
+the automated coverage more exhaustive, not a failed acceptance criterion.
+
+### Scope Drift
+
+None. Application changes are limited to the protected admin layout, the two list views,
+the edit-page image-row sizing, and the admin Playwright spec. No actions, schema, auth,
+pricing, payment, email, public-site, or Blob behavior changed.
+
+### Rubric Scores
+
+| Area | Score |
+|---|---|
+| 0. Goal Alignment | 5 |
+| 1. Requirement Fit | 5 |
+| 2. Simplicity | 5 |
+| 3. User Workflow | 5 |
+| 4. Data Integrity | 5 |
+| 5. Error Handling | 5 |
+| 6. Security / Privacy | 5 |
+| 7. Maintainability | 4 |
+
+Average: 4.875. Maintainability is scored 4 because mobile cards and desktop tables
+necessarily duplicate some field/action markup; the duplication is localized, readable,
+and preferable here to introducing a generalized rendering abstraction for two views.
+
+### Closing Question
+
+**Did this accomplish the stated goal?** Yes. All named 360px routes fit the viewport, the
+mobile header and operational records are readable/actionable, long image URLs cannot hide
+Delete, and the desktop table/header treatments remain active at desktop widths.
+
+### Verdict
+
+**PASS**
+
+There are no critical bugs or privacy failures, Goal Alignment is 5, the average rubric
+score is above 4, every high-priority acceptance criterion is satisfied, and full Playwright
+results are recorded.
+
+### Recommended Next Generator Task
+
+No revision is required. Optionally strengthen `e2e/admin.spec.ts` with explicit assertions
+for the login controls, empty-booking branches, desktop breakpoint visibility, and a
+synthetic long image URL so the evaluator's focused checks become permanent regression
+coverage.
+
+### Final semantic-markup follow-up (2026-07-20)
+
+**PASS — original verdict unchanged.** Inspected the final mobile booking-card adjustment:
+the Deposit `dt` and `dd` are now direct children of their definition-list grouping `div`,
+and the Cancel form is valid flow content inside the Deposit `dd`. The existing flex
+classes, displayed amount, status guard, bound cancel action, desktop markup, and data flow
+are unchanged. `npx tsc -b` passed with 0 errors, `git diff --check` passed, and
+`npx playwright test e2e/admin.spec.ts` passed 6/6 with no failing specs. No revision is
+required.

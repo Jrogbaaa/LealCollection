@@ -90,4 +90,39 @@ test.describe("admin CRUD", () => {
     await page.getByRole("link", { name: "Confirmed" }).click();
     await expect(page).toHaveURL(/status=confirmed/);
   });
+
+  test("admin routes stay readable without page overflow at 360px", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+
+    await page.goto("/admin/boats");
+    await expect(page.getByTestId("mobile-boat-list")).toBeVisible();
+    await expect(page.getByTestId("desktop-boat-table")).toBeHidden();
+
+    const headerLayout = await page.locator("header").evaluate((header) => {
+      const brand = header.querySelector("a");
+      const nav = header.querySelector("nav");
+      if (!brand || !nav) return null;
+      const brandRect = brand.getBoundingClientRect();
+      const navRect = nav.getBoundingClientRect();
+      return { brandBottom: brandRect.bottom, navTop: navRect.top };
+    });
+    expect(headerLayout).not.toBeNull();
+    expect(headerLayout!.navTop).toBeGreaterThanOrEqual(headerLayout!.brandBottom);
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(360);
+
+    await page.goto("/admin/bookings");
+    await expect(page.getByTestId("mobile-booking-list")).toBeVisible();
+    await expect(page.getByTestId("desktop-booking-table")).toBeHidden();
+    await expect(page.getByText("Customer", { exact: true }).first()).toBeVisible();
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(360);
+
+    await page.goto("/admin/boats/new");
+    await expect(page.getByRole("heading", { name: "New boat" })).toBeVisible();
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(360);
+
+    await page.goto("/admin/boats");
+    await page.getByRole("link", { name: "Edit" }).first().click();
+    await expect(page.getByRole("heading", { name: /Edit/ })).toBeVisible();
+    expect(await page.evaluate(() => document.body.scrollWidth)).toBeLessThanOrEqual(360);
+  });
 });

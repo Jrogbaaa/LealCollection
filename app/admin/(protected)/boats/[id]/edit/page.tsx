@@ -35,24 +35,24 @@ export default async function EditBoatPage({
 
       <section className="mt-16">
         <h2 className="font-display text-xl text-marine-950">Images</h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        <ul className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">
           {boat.images.map((img) => {
             const deleteImageWithIds = deleteImage.bind(null, img.id, boatId);
             return (
               <li
                 key={img.id}
-                className="flex items-center justify-between gap-3 rounded-sm border border-marine-950/10 p-3"
+                className="flex min-w-0 items-center justify-between gap-3 rounded-sm border border-marine-950/10 p-3"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.blobUrl}
                   alt={img.altEn}
-                  className="h-16 w-24 rounded-sm object-cover"
+                  className="h-16 w-24 shrink-0 rounded-sm object-cover"
                 />
-                <span className="flex-1 truncate text-xs text-marine-900/60">
+                <span className="min-w-0 flex-1 truncate text-xs text-marine-900/60">
                   {img.blobUrl}
                 </span>
-                <form action={deleteImageWithIds}>
+                <form action={deleteImageWithIds} className="shrink-0">
                   <button type="submit" className="text-xs text-red-700 hover:underline">
                     Delete
                   </button>

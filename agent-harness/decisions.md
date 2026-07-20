@@ -139,3 +139,18 @@
   top of the crop — 64px mobile / 80px desktop in the site header, 56px in admin — since with
   the dead space gone this size reads as genuinely bigger, not just a fixed-box change.
   Original uncropped file backed up outside the repo before overwriting, not committed.
+
+## Admin mobile UX and overflow
+
+- **Use mobile records, not horizontally scrolling seven-column tables:** the bookings
+  table is operational data, including customer contact details and a cancel action. At
+  360px, a horizontal table would require hidden off-screen context and make row scanning
+  error-prone. Below `md`, render the same server-fetched records as labelled cards; keep
+  the existing semantic tables at `md` and above. The boats list follows the same pattern
+  for consistency.
+- **Stack the protected header on mobile:** keep the brand and navigation in separate rows
+  below `md`, returning to the current side-by-side layout at the desktop breakpoint. This
+  avoids adding a second hamburger implementation to a small three-action admin nav.
+- **Contain image rows by fixing flex minimum sizing:** add `min-w-0` to the row/text region
+  so long Blob or seeded image paths truncate inside the available track. The delete action
+  remains visible and unchanged.
