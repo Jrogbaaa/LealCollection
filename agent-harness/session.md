@@ -1,6 +1,51 @@
 # Session
 
-**State (current):** Generator phase complete for `admin-boat-image-upload` in worktree
+**State (current):** Generator phase complete for `booking-page-design-cleanup` in worktree
+`/Users/JackEllis/worktrees/booking-page-design-cleanup` (branch `feat/booking-page-design-cleanup`).
+Fixed 3 verified defects on `/reserva` found via live design review:
+- Calendar accent color: `react-day-picker`'s own `.rdp-root` div re-declares
+  `--rdp-accent-color: blue` on itself (not `:root`), so a wrapper div's override never
+  reached it via inheritance. Fixed by passing the color override through `DayPicker`'s own
+  `style` prop instead of a wrapper `<div>`. Verified live via `getComputedStyle` —
+  chevron fill and "today" color now resolve to `rgb(27,102,153)` (marine-700) /
+  `rgb(168,129,79)` (gold-600), not blue.
+- "Add extras" section: `includedExtras` ("Towel service") and `askUsExtras` ("Luxury
+  caviar snack") no longer render as disconnected caption paragraphs below the priced
+  checkbox grid — they're now rows in the same card grid, labeled "Included" / "Available
+  on request".
+- `askUsExtra` copy reworded in `messages/en.json` + `messages/es.json` from dev-note
+  phrasing ("ask us about this one") to brand voice ("Available on request" /
+  "Disponible a consultar").
+- CTA button (`components/booking-flow.tsx` submit button) changed from `bg-gold-500`
+  fill to `bg-marine-950`/`hover:bg-marine-900`/`text-sand-50`, per CLAUDE.md's
+  gold-is-accent-only rule. Verified enabled-state color live: `rgb(14,34,51)` /
+  `rgb(250,250,248)`.
+
+Verified in the worktree: `npx tsc -b` clean, `npm run build` clean, `npx vitest run`
+18/18.
+
+**Evaluator pass (separate subagent, isolated worktree):** ran `npx playwright test` —
+14/14 passing (`admin.spec.ts`, `booking-flow.spec.ts` including the golden-path
+Stripe-redirect test, `public-site.spec.ts`). No test broke from the extras DOM
+restructuring. Found and killed a stray `next dev` process on port 3000 from the main repo
+dir that would have caused Playwright to silently test stale code via
+`reuseExistingServer: true` — the reported 14/14 is against the worktree's own dev server.
+Confirmed live via `getComputedStyle` that the calendar fix resolves to brand colors, and
+via `grep` that no `bg-gold-500` remains in `components/booking-flow.tsx`. Verdict: PASS.
+Full detail in `findings.md`.
+
+PR opened: https://github.com/Jrogbaaa/LealCollection/pull/1. A code-review pass (5 parallel
+Sonnet reviewers + confidence scoring) flagged one real issue: this file, `progress.json`,
+and `featurelist.json` still said "awaiting evaluator" / "planned" in the same commit that
+`findings.md` reported a completed PASS — a harness bookkeeping inconsistency, not a test
+result problem (the Evaluator pass genuinely happened). Fixed by updating this file and the
+two JSON files to reflect the real state, in a follow-up commit on the same branch.
+
+**Next action:** none — PR is ready to merge pending the bookkeeping-fix commit landing.
+
+---
+
+**State (prior):** Generator phase complete for `admin-boat-image-upload` in worktree
 `/Users/JackEllis/worktrees/admin-boat-image-upload` (branch `feat/admin-boat-image-upload`).
 Replaced the admin's paste-a-URL image input with a real Vercel Blob file upload:
 - `app/api/admin/upload/route.ts` — token-issuing route, `requireAdmin()`-gated (it sits

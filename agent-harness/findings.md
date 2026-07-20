@@ -237,3 +237,106 @@ independent of Playwright/the browser). Recorded in `TODOS.md` as a new blocking
 requiring the owner to supply a real `BLOB_READ_WRITE_TOKEN` from their Vercel project's
 Storage tab before the upload path (and its Playwright test) can be verified end-to-end
 and closed out.
+
+## Booking page design cleanup (/reserva)
+
+**Original goal:** Fix three concrete, verified defects on `components/booking-flow.tsx`:
+(1) react-day-picker calendar accent color rendering as pure blue instead of brand
+marine-700/gold-600, (2) the "included"/"ask us" extras rendering as disconnected
+caption-sized `<p>` tags below the priced checkbox grid instead of styled rows in the same
+grid, (3) the primary CTA using `bg-gold-500` (a solid gold fill), which violates CLAUDE.md
+§4 ("gold is an accent, never a button fill").
+
+**Non-goals:** the same `bg-gold-500` violation on the homepage hero / fleet detail page
+(explicitly deferred by owner decision); pricing the caviar extra (open, unaffected — the
+"price on request" pattern stays, only presentation/copy changed); any change to booking
+logic, pricing calculation, Stripe checkout, or blocked-dates behavior; any change to
+`/reserva/gracias`, fleet pages, or admin.
+
+**Acceptance criteria:** `getComputedStyle` on `.rdp-root`'s `--rdp-accent-color` resolves
+to marine-700 (not blue); today marker/nav chevrons render in brand colors; included/ask-us
+extras render as styled rows in the same card grid as priced extras; `askUsExtra` copy
+reworded in both `en.json`/`es.json`; CTA uses `bg-marine-950`/`hover:bg-marine-900`/
+`text-sand-50` with no `bg-gold-500` remaining on `/reserva`; `tsc -b`, `npm run build`,
+`npx vitest run` all pass; relevant Playwright booking-flow spec passes.
+
+### Test Results
+- `npx tsc -b`: 0 errors
+- `npm run build`: clean (Turbopack, all 15 routes compiled)
+- `npx vitest run`: 18/18 passing across 3 test files
+- `npx playwright test`: **14/14 passing** — `e2e/admin.spec.ts` (5), `e2e/booking-flow.spec.ts`
+  (2, including the golden-path "fills through to a Stripe Checkout redirect with the right
+  amount" test and the URL-sharing test), `e2e/public-site.spec.ts` (7). No test referenced
+  the old extras `<p>`-tag markup, so none broke from the DOM restructuring.
+- Infra note: a stray `next dev` process from the **main repo directory** (not this
+  worktree) was found bound to port 3000 before the first run, which would have caused
+  Playwright to silently test stale pre-fix code via `reuseExistingServer: true`. Killed it
+  (and a leftover port-3001 process from an earlier aborted worktree run) before the run
+  reported above; the 14/14 result is against the worktree's own dev server.
+
+### Live verification (adversarial, not just test-suite trust)
+- `grep -n "gold-500" components/booking-flow.tsx` → no matches. CTA button classes
+  confirmed as `bg-marine-950 ... hover:bg-marine-900 ... text-sand-50`.
+- Read the diff directly: `includedExtras`/`askUsExtras` now map to `<div>` rows with the
+  same `bg-sand-50 p-5 flex items-center justify-between` treatment as the priced
+  `<label>` checkbox rows, and both `.map()` blocks live inside the same
+  `<div className="mt-4 grid ... sm:grid-cols-2">` container as the priced extras — not
+  separate paragraphs below it, as spec required.
+- Loaded `/en/reserva` in a real browser and ran `getComputedStyle(document.querySelector('.rdp-root'))`:
+  `--rdp-accent-color` = `#1b6699`, `--rdp-today-color` = `#a8814f`. Cross-checked against
+  `app/globals.css`: `--color-marine-700: #1b6699` and `--color-gold-600: #a8814f` — exact
+  match, confirmed not blue (`rgb(0,0,255)`/`#0000ff`). The fix (moving the CSS variable
+  override onto `DayPicker`'s own `style` prop instead of a wrapper `<div>`) works because
+  it sets the variable directly on `.rdp-root` itself as an inline style, which beats
+  react-day-picker's own internal `--rdp-accent-color: blue` declaration on that same
+  element via specificity/source order — inline styles win regardless of the `@layer`
+  unlayered-CSS issue described in spec.md.
+- `askUsExtra` reworded in both locales: `en.json` → "Available on request",
+  `es.json` → "Disponible a consultar". Neither retains dev-note phrasing.
+
+### Critical Issues
+None found.
+
+### Bugs
+None found.
+
+### UX Issues
+None found. The extras section now reads as a coherent grid of rows (priced, included,
+ask-us) rather than a priced grid followed by orphaned captions.
+
+### Missing Requirements
+None — all three defects and both locale copy changes are present and verified.
+
+### Scope Drift
+None. The homepage/fleet-detail `bg-gold-500` CTA (explicitly out of scope) was left
+untouched; only `components/booking-flow.tsx`, `messages/en.json`, and `messages/es.json`
+were changed, matching spec.md's stated approach exactly. No changes to pricing, Stripe,
+blocked-dates, `/reserva/gracias`, fleet pages, or admin.
+
+### Rubric Scores
+| Area | Score |
+|---|---|
+| Goal Alignment | 5 |
+| Requirement Fit | 5 |
+| Simplicity | 5 |
+| User Workflow | 5 |
+| Data Integrity | 5 (no data touched — correctly out of scope) |
+| Error Handling | N/A (no new error paths introduced) |
+| Security / Privacy | 5 (no PII/secrets touched) |
+| Maintainability | 5 |
+
+### Closing Question
+**Did this accomplish the stated goal?** Yes. All three verified defects are fixed, the
+fix for the calendar color bug is durable (inline style beats react-day-picker's own
+unlayered override, verified via live `getComputedStyle`, not just visual inspection), the
+extras section reads as intentional design rather than leftover text, and the CTA now
+complies with CLAUDE.md's gold-is-accent-only rule. No regressions in the existing 14
+Playwright tests, and no scope drift beyond the three approved fixes.
+
+### Verdict
+**PASS.**
+
+### Recommended next step (not a blocker for this pass)
+Log the deferred homepage-hero / fleet-detail-page `bg-gold-500` CTA violation as a
+`TODOS.md` item (per spec.md's non-goals note) if not already tracked there, so it isn't
+lost as a follow-up design-cleanup pass.
