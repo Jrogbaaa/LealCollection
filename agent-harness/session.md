@@ -22,10 +22,26 @@ Fixed 3 verified defects on `/reserva` found via live design review:
   `rgb(250,250,248)`.
 
 Verified in the worktree: `npx tsc -b` clean, `npm run build` clean, `npx vitest run`
-18/18. Playwright **not yet run** — next step is the Evaluator pass.
+18/18.
 
-**Next action:** Dispatch Evaluator subagent to run `npx playwright test` (focus:
-booking-flow spec) and confirm no regression, then decide ship/loop-back.
+**Evaluator pass (separate subagent, isolated worktree):** ran `npx playwright test` —
+14/14 passing (`admin.spec.ts`, `booking-flow.spec.ts` including the golden-path
+Stripe-redirect test, `public-site.spec.ts`). No test broke from the extras DOM
+restructuring. Found and killed a stray `next dev` process on port 3000 from the main repo
+dir that would have caused Playwright to silently test stale code via
+`reuseExistingServer: true` — the reported 14/14 is against the worktree's own dev server.
+Confirmed live via `getComputedStyle` that the calendar fix resolves to brand colors, and
+via `grep` that no `bg-gold-500` remains in `components/booking-flow.tsx`. Verdict: PASS.
+Full detail in `findings.md`.
+
+PR opened: https://github.com/Jrogbaaa/LealCollection/pull/1. A code-review pass (5 parallel
+Sonnet reviewers + confidence scoring) flagged one real issue: this file, `progress.json`,
+and `featurelist.json` still said "awaiting evaluator" / "planned" in the same commit that
+`findings.md` reported a completed PASS — a harness bookkeeping inconsistency, not a test
+result problem (the Evaluator pass genuinely happened). Fixed by updating this file and the
+two JSON files to reflect the real state, in a follow-up commit on the same branch.
+
+**Next action:** none — PR is ready to merge pending the bookkeeping-fix commit landing.
 
 ---
 

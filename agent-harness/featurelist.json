@@ -39,7 +39,7 @@
         "Primary CTA button uses bg-marine-950/hover:bg-marine-900/text-sand-50, no bg-gold-500 fill remaining on /reserva",
         "tsc -b, npm run build, npx vitest run all pass; relevant Playwright booking-flow spec passes"
       ],
-      "status": "planned"
+      "status": "evaluator-pass-complete, tsc/build/vitest/playwright all green (18/18, 14/14), PR open"
     }
   ]
 }

@@ -12,3 +12,6 @@
 {"ts": "2026-07-20T14:20:00Z", "role": "generator", "action": "restyle included/ask-us extras as grid rows, reword askUsExtra copy in en/es", "result": "ok"}
 {"ts": "2026-07-20T14:22:00Z", "role": "generator", "action": "replace bg-gold-500 CTA fill with bg-marine-950/text-sand-50", "result": "ok"}
 {"ts": "2026-07-20T14:25:00Z", "role": "generator", "action": "run tsc -b, npm run build, npx vitest run", "result": "all pass: tsc clean, build clean, 18/18 vitest tests"}
+{"ts": "2026-07-20T14:30:00Z", "role": "evaluator", "action": "run npx playwright test against worktree dev server after killing stray process on port 3000", "result": "14/14 passing, no regressions from extras DOM restructuring"}
+{"ts": "2026-07-20T14:32:00Z", "role": "evaluator", "action": "verify tsc -b, npm run build, live getComputedStyle check, grep for bg-gold-500", "result": "all confirmed, wrote findings.md, verdict PASS"}
+{"ts": "2026-07-20T14:45:00Z", "role": "generator", "action": "reconcile progress.json/session.md/featurelist.json with evaluator PASS result (flagged by code review as internally inconsistent)", "result": "ok"}
