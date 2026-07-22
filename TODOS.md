@@ -21,22 +21,16 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   admin routes. Separate Evaluator verdict: PASS (`tsc` and build clean, Vitest 18/18,
   Playwright 15/15, focused 360px/1280px checks green).
 
-## Code-complete, blocked on a credential
+## Admin image upload follow-up
 
-- **[ADMIN-IMAGE-UPLOAD] P1** — Boat image upload to Vercel Blob, now with **drag-and-drop
-  + click-pick + preview**, is built on `feat/top-fixes-batch` (not yet merged):
-  `app/api/admin/upload/route.ts` (auth-gated client-upload token route),
-  `app/admin/(protected)/boats/image-upload.tsx` (dropzone), `deleteImage` scoped to
-  `boatId` and deleting the underlying Blob file. `tsc -b` / `npm run build` /
-  `npx vitest run` (25/25) all pass; `npx playwright test` is 15 passed + 1 **skipped** —
-  the skip is the live-upload case, gated on the token. A real token is now set locally, but
-  a `put` probe returned **"Cannot use public access on a private store"** — the connected
-  Blob store (`store_d1IATz6AfMHbVtTo`) is configured **private**. Boat photos are shown on
-  the public site, so the store must be **public** (our code correctly uses
-  `access: "public"`). **Action:** create/use a **public** Vercel Blob store, put its
-  `BLOB_READ_WRITE_TOKEN` in local `.env.local` + Vercel (Production **and** Preview), then
-  rerun `npx playwright test admin-features` — the upload case will pass. Do NOT switch the
-  code to `access: "private"` (would break public image rendering).
+- **[ADMIN-IMAGE-UPLOAD] P1 — evaluator PASS, ready to deploy.** Drag/drop and click-pick
+  upload are shipped from PR #4; this follow-up makes photo management obvious from the
+  desktop/mobile Boats list and moves the uploader above the current gallery. The valid
+  public-store `BLOB_READ_WRITE_TOKEN` is configured locally and in Vercel Production +
+  Preview (gitignored). TypeScript/build pass, Vitest is 25/25, Playwright is 18/18, and a
+  separate Evaluator independently verified auth denial plus a real upload → DB persistence
+  → admin/public render → UI delete lifecycle with the Blob store restored to empty. Final
+  closure requires repeating that lifecycle on the live URL after this branch deploys.
 
 ## Owner input required (blocking)
 
@@ -85,9 +79,8 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   `STRIPE_WEBHOOK_SECRET` in prod is still the local `stripe listen` secret — create a
   production webhook endpoint at `https://leal-collection.vercel.app/api/webhooks/stripe` and
   paste its `whsec_…` (works in test mode now, no bank needed), so the booking→email chain
-  actually fires; (2) `BLOB_READ_WRITE_TOKEN` is an empty string in Production — set a real
-  token once `[ADMIN-IMAGE-UPLOAD]` is merged; (3) custom domain deferred (see `[DOMAIN]`).
-## Shipped on `feat/top-fixes-batch` (pending merge)
+  actually fires; (2) custom domain deferred (see `[DOMAIN]`).
+## Shipped via PR #4 (`feat/top-fixes-batch`)
 
 - **[ADMIN-BLOCKED-DATES]** — `/admin/blocked-dates` admin UI (list / add / remove whole-day
   blocks) over `blocked_dates`; nav link added; verified end-to-end (a blocked date makes

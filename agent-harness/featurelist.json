@@ -1,6 +1,32 @@
 {
   "features": [
     {
+      "id": "production-admin-image-upload",
+      "goal": "Make boat-photo upload clearly discoverable in the live admin and verify upload, persistence, public rendering, and deletion end-to-end against Production",
+      "why_it_matters": "Admin efficiency and operational confidence: the owner must be able to manage yacht photos without external hosting or developer help",
+      "non_goals": [
+        "Multi-image batch upload",
+        "Image reordering or sortOrder UI",
+        "Cropping, compression, or image editing",
+        "Database schema changes",
+        "Public fleet redesign",
+        "Auth redesign or additional admin users",
+        "Unrelated TODO cleanup"
+      ],
+      "acceptance_criteria": [
+        "The boats admin exposes an obvious path to photo management and the boat edit page clearly labels the uploader",
+        "Click-pick and single-file drag/drop accept JPEG, PNG, and WebP with preview, EN/ES alt text, and visible errors",
+        "The upload-token route remains fail-closed for unauthenticated requests",
+        "Production has a valid public-store Blob token without committing or logging credentials",
+        "A real Production upload creates a public Blob URL, persists the boat image, and renders in admin and public fleet",
+        "Deleting the test image removes both its database row and Blob object while seeded images remain untouched",
+        "The flow is usable at desktop and 360px without page overflow",
+        "TypeScript, build, Vitest, focused Playwright, and separate Evaluator pass",
+        "The post-deploy Production upload/render/delete flow passes"
+      ],
+      "status": "evaluator-pass-complete; rubric 5.0; tsc/build/Vitest 25/25 and Playwright 18/18 pass; independent real drag/drop upload persisted and rendered in admin/public fleet, then deleted with DB and Blob cleanup; ready to deploy for final live Production repeat"
+    },
+    {
       "id": "top-fixes-image-upload-dnd-blocked-dates",
       "goal": "Ship the evaluation's top fixes (slot-price under-charge gate, gold-CTA-fill removal, atomic webhook confirm, email HTML escaping, checkout input validation) plus a real drag-and-drop/file-picker Vercel Blob image uploader, a blocked-dates admin UI, and /experiencias + /contacto stub pages; verify admin login end-to-end",
       "why_it_matters": "Revenue correctness (no under-charge / EUR0 Stripe session), brand trust (gold-as-fill violation), security (email HTML injection, double-send emails), and admin efficiency (phone photo upload, calendar blocking) with no remaining 404 nav links",

@@ -34,8 +34,21 @@ export default async function EditBoatPage({
         </button>
       </form>
 
-      <section className="mt-16">
-        <h2 className="font-display text-xl text-marine-950">Images</h2>
+      <section
+        id="photos"
+        className="mt-16 scroll-mt-8 border-t border-marine-950/10 pt-8"
+      >
+        <h2 className="font-display text-2xl text-marine-950">Boat photos</h2>
+        <p className="mt-2 text-sm text-marine-900/60">
+          Upload a JPEG, PNG or WebP from your computer or phone. New photos appear on the
+          public boat page after upload.
+        </p>
+
+        <ImageUpload action={addImageWithId} />
+
+        <h3 className="mt-10 text-xs uppercase tracking-widest text-marine-900/50">
+          Current photos
+        </h3>
         <ul className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">
           {boat.images.map((img) => {
             const deleteImageWithIds = deleteImage.bind(null, img.id, boatId);
@@ -62,8 +75,6 @@ export default async function EditBoatPage({
             );
           })}
         </ul>
-
-        <ImageUpload action={addImageWithId} />
       </section>
 
       <section className="mt-16 border-t border-marine-950/10 pt-8">

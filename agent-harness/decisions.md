@@ -154,3 +154,16 @@
 - **Contain image rows by fixing flex minimum sizing:** add `min-w-0` to the row/text region
   so long Blob or seeded image paths truncate inside the available track. The delete action
   remains visible and unchanged.
+
+## Production admin image-upload discoverability and verification
+
+- **A feature is not complete until the live owner workflow passes:** the uploader code was
+  already merged, but the owner could not find it and no public-store Production round-trip
+  had passed. This follow-up treats discoverability and live verification as acceptance
+  criteria rather than assuming compiled code is sufficient.
+- **Use one disposable test image and clean it up:** Production verification may create one
+  clearly identified boat image, confirm admin/public rendering, then delete the database
+  row and Blob object. Existing seeded photography is never modified or deleted.
+- **Keep scope narrow:** no batch upload, sorting, cropper/compression, schema change, public
+  redesign, or auth redesign. Improve only the route/section clarity needed for the owner to
+  find the already-built capability and fix defects proven by the live round-trip.
