@@ -726,6 +726,161 @@ and preferable here to introducing a generalized rendering abstraction for two v
 mobile header and operational records are readable/actionable, long image URLs cannot hide
 Delete, and the desktop table/header treatments remain active at desktop widths.
 
+## Top-fixes batch — image upload (DnD) + blocked dates + money/webhook/email/design hardening (2026-07-22)
+
+Feature id (task): `top-fixes-image-upload-dnd-blocked-dates`. Worktree
+`/Users/JackEllis/worktrees/top-fixes-batch`, branch `feat/top-fixes-batch`, evaluated
+against `main` (18 files changed + untracked new files/dirs).
+
+**Original goal (restated from task, since no spec.md/featurelist entry exists for this
+batch — see Critical Issue H1):** Ship seven hardening/feature fixes together: (1) checkout
+gate on the selected slot's price to stop €0/under-charge bookings; (2) atomic, race-safe
+webhook confirmation; (3) HTML-escape customer fields in confirmation emails; (4) remove
+every `bg-gold-500` button fill per CLAUDE.md §4; (5) real Vercel Blob drag-and-drop image
+upload with an auth-gated token route and boatId-scoped delete; (6) a blocked-dates admin
+UI wired to the existing `blocked_dates` availability model; (7) localized `/experiencias`
+and `/contacto` stub pages.
+
+**Non-goals (inferred, since not committed):** DB schema changes; changes to public /fleet
+rendering logic; image reorder/crop/resize; a real BLOB token round-trip (env-blocked).
+
+### Test Results
+- `.env.local`: present. `BLOB_READ_WRITE_TOKEN` confirmed empty string (redacted check).
+- `npx tsc -b`: 0 errors
+- `npm run build`: clean; 24 routes compiled, including `/admin/blocked-dates`,
+  `/api/admin/upload`, `/[locale]/experiencias`, `/[locale]/contacto`
+- `npx vitest run --exclude "**/e2e/**"`: **25/25 passing** across 5 files
+  (`lib/pricing.test.ts` incl. the new zero-slot under-charge guard, `lib/booking-reference.test.ts`,
+  `app/api/webhooks/stripe/route.test.ts` — still green under the new atomic UPDATE,
+  `lib/blob.test.ts` 3, `lib/email.test.ts` 3)
+- `npx playwright test`: **16 passed, 1 skipped, 0 failed.** The skip is
+  `e2e/admin-features.spec.ts › uploads a real image to Vercel Blob and can delete it`,
+  correctly gated on the empty `BLOB_READ_WRITE_TOKEN` — expected/environmental, not a
+  failure. The sibling `e2e/admin-features.spec.ts › a blocked whole-day date is rejected
+  at checkout` PASSED (real login → admin block a date → `/api/checkout` returns 409
+  `date_unavailable` → cleanup). The 14 pre-existing specs (admin, booking-flow incl. the
+  Stripe redirect amount test, public-site) all still pass. The `[WebServer]` auth stack
+  trace in output is the expected `CredentialsSignin` from the "wrong password is rejected"
+  test (which passed); the LCP image warning is pre-existing on main.
+
+### Adversarial verification of the hard-judge areas
+- **Money path (slot-price gate):** CONFIRMED correct. `slotPrice(boat, slot)` returns the
+  selected slot's price; `bookingSubtotal = slotPrice + extrasTotal`; the gate now rejects
+  `slotPrice(boat, slot) <= 0` (was `boat.priceFullDay <= 0`). The extras-only under-charge
+  case — full-day priced but morning=0 with a €90 extra — is exactly the scenario the new
+  `lib/pricing.test.ts` case pins (subtotal collapses to 9000), and the checkout gate now
+  returns 409 `pricing_unavailable` before any booking/Stripe session is created. Subtotal
+  and deposit are recomputed server-side from the DB row; no client total is trusted.
+- **Webhook atomicity:** CONFIRMED race-safe. The read-then-write was replaced by a single
+  `UPDATE … SET status='confirmed' WHERE id=? AND status='pending' RETURNING id`. Only the
+  delivery that actually transitions the row gets a returned row, so two concurrent
+  deliveries cannot both pass the guard — emails fire once. Signature verification is
+  unchanged and upstream. The existing webhook Vitest still passes.
+- **Email escaping:** CONFIRMED complete. `escapeHtml` (5-char) is applied to every
+  customer-controlled field interpolated into HTML — `customerName`, `email`, `phone`,
+  and `boatName` — in BOTH the customer email and the owner email. `reference`, `date`,
+  `slot`, `guests` are system/enum/numeric, not free text. `notes` is not rendered in
+  either email. No unescaped customer string reaches the HTML.
+- **Auth-gating of `/api/admin/upload`:** CONFIRMED. Route lives outside `(protected)`;
+  `requireAdmin()` is the sole gate and runs inside `onBeforeGenerateToken`, which
+  `handleUpload` must resolve before minting a client token. `requireAdmin()` fails closed
+  (throws if `AUTH_SECRET`/`ADMIN_EMAIL`/`ADMIN_PASSWORD_HASH` unset, else requires a
+  session); the throw is caught → 401, no token issued. The `upload-completed` event path
+  doesn't call `requireAdmin`, but its `onUploadCompleted` is a no-op (no DB write) and
+  `handleUpload` verifies the callback signature against the Blob token, so it can't be
+  forged into a mutation.
+- **Delete guard:** `deleteImage` is boatId-scoped on both select and delete
+  (`and(eq(id), eq(boatId))`); `del()` is called only when `isBlobUrl()` is true (seeded
+  `/images/*` paths skipped); a Blob delete failure is caught and logged as `{ imageId }`
+  only — no URL, token, or PII logged.
+- **`isBlobUrl`:** parses via `new URL()` and checks `hostname.endsWith(".public.blob.
+  vercel-storage.com")` — hostname-spoofing (`…vercel-storage.com.attacker.com`) is
+  structurally excluded because `.hostname` is the real parsed authority.
+- **Residual gold button fill:** `grep -rn "bg-gold-500" app/ components/` → zero matches.
+  All 5 fills replaced (homepage hero, fleet/[slug] reserve, admin new/edit → navy
+  `bg-marine-950`/`text-sand-50`; login → `bg-sand-50` on its dark card). `border-gold-500`
+  remains on a /contacto text link — that is a hairline accent, allowed by §4.
+- **i18n parity:** `experiences` (13 keys) and `contact` (12 keys) namespaces have identical
+  key sets in en.json and es.json (verified programmatically).
+
+### Critical Issues
+- **H1 (harness discipline, not a code defect):** There is NO `spec.md` /
+  `featurelist.json` entry for this feature. `spec.md` still describes the prior
+  `admin-mobile-ux` feature, `featurelist.json` has no `top-fixes-*` entry, and
+  `progress.json.current_feature` is still `admin-mobile-ux` with `phase:
+  evaluator-pass-complete` and empty `in_progress`. The acceptance criteria I audited came
+  from the task prompt, not from a committed planning artifact. Per the Evaluator prompt's
+  First Action, this should have been flagged to the Planner before implementation. It does
+  not invalidate the (sound) code, but the Planner/Generator must add the spec+featurelist
+  entry and update progress.json before this is considered process-complete. This is also a
+  contract concern: several items here (real Blob upload, blocked-dates UI,
+  experiencias/contacto) were explicitly listed as *non-goals / deferred* in earlier
+  passes' specs — legitimate to build now, but exactly why a written spec was needed to
+  authorize the scope.
+
+### Bugs
+- None affecting correctness of money, data, auth, or navigation.
+
+### UX / Minor Issues (non-blocking)
+- `app/api/admin/upload/route.ts` collapses every thrown error to HTTP 401 — a genuinely
+  malformed body or an internal Blob/config error is reported to the client as
+  "unauthorized." Cosmetic/observability nit; the auth path itself is correct.
+- `deleteImage`'s `void err;` after `console.error(...)` is redundant (the error is already
+  consumed by the logged message) — harmless.
+- `addBlockedDate`/`deleteBlockedDate` call `revalidatePath("/reserva")`, but the public
+  booking route is localized (`/[locale]/reserva`), so this path won't match. This mirrors
+  the pre-existing convention (`addImage` uses `revalidatePath("/fleet")`), and the booking
+  calendar reads `blocked_dates` dynamically server-side per request, so availability is
+  still correct — the e2e test proves the 409 reaches checkout. Informational only.
+
+### Scope Drift
+- No code-level drift beyond the 7 named items — the diff touches exactly the money path,
+  webhook, email, the 5 gold buttons, the upload/blob/delete surface, blocked-dates, and
+  the two stub pages plus their message namespaces and tests. The only "drift" concern is
+  the *absence of a spec authorizing the scope* (H1), not extra code.
+
+### Rubric Scores
+| Area | Score |
+|---|---|
+| 0. Goal Alignment | 5 |
+| 1. Requirement Fit | 4 (all acceptance criteria met; docked for the missing spec/featurelist entry and the still-unverified live Blob round-trip — env-blocked, expected) |
+| 2. Simplicity | 5 |
+| 3. User Workflow | 5 |
+| 4. Data Integrity | 5 |
+| 5. Error Handling | 4 (upload route flattens all errors to 401) |
+| 6. Security / Privacy | 5 |
+| 7. Maintainability | 5 |
+
+Average: 4.75. Goal Alignment 5 (≥4). No critical code bugs, no privacy failures.
+
+### Closing Question
+**Did this accomplish the stated goal?** Yes. Every one of the seven fixes does what it
+claims and was verified adversarially, not eyeballed: the slot-price gate provably closes
+the extras-only under-charge (unit-pinned + gate traced), the webhook confirmation is now a
+genuinely atomic conditional UPDATE, all customer fields are escaped in both emails, the
+upload token route is correctly and solely gated by a fail-closed `requireAdmin()`, delete
+is boatId-scoped and removes the Blob file, zero `bg-gold-500` button fills remain, the
+blocked-dates UI reaches checkout (passing e2e 409), and the two localized stubs have full
+en/es parity. tsc/build/vitest(25)/playwright(16 pass, 1 env-skip) all green.
+
+### Verdict
+**PASS** — with one required non-code follow-up (H1): write the `spec.md` /
+`featurelist.json` entry for this feature and reconcile `progress.json` so the harness
+record matches what shipped. The upload path's live Vercel Blob round-trip remains the only
+unverified acceptance item, blocked solely by the empty `BLOB_READ_WRITE_TOKEN` — already
+tracked as an owner blocker; the code, auth gate, and delete guard are otherwise
+review-clean.
+
+### Recommended Next Generator Task
+1. Add the missing `featurelist.json` entry and a `spec.md` section for
+   `top-fixes-image-upload-dnd-blocked-dates` (goal, non-goals, acceptance criteria as
+   audited above), and update `progress.json` (`current_feature`, `complete[]`) to record
+   this batch — closing the H1 harness gap.
+2. When a real `BLOB_READ_WRITE_TOKEN` is supplied, unskip and run the upload e2e to close
+   the one outstanding live-verification item.
+3. Optional: return a 400 (not 401) from `/api/admin/upload` for non-auth errors so a
+   malformed request isn't mislabeled unauthorized.
+
 ### Verdict
 
 **PASS**

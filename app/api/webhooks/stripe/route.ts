@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import Stripe from "stripe";
 import { db } from "@/db/index";
 import { bookings } from "@/db/schema";
@@ -29,22 +29,22 @@ export async function POST(request: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     const bookingId = Number(session.metadata?.bookingId);
     if (bookingId) {
-      const existing = await db.query.bookings.findFirst({
-        where: eq(bookings.id, bookingId),
-      });
-      // Idempotent: a replayed webhook event must not re-trigger confirmation side effects.
-      if (existing && existing.status === "pending") {
-        await db
-          .update(bookings)
-          .set({
-            status: "confirmed",
-            stripePaymentIntent:
-              typeof session.payment_intent === "string" ? session.payment_intent : null,
-          })
-          .where(eq(bookings.id, bookingId));
+      // Idempotent AND race-safe: a single conditional UPDATE flips pending -> confirmed and
+      // returns a row only for the delivery that actually made the transition. Two concurrent
+      // deliveries of the same event can't both pass the guard, so emails are sent once.
+      const [transitioned] = await db
+        .update(bookings)
+        .set({
+          status: "confirmed",
+          stripePaymentIntent:
+            typeof session.payment_intent === "string" ? session.payment_intent : null,
+        })
+        .where(and(eq(bookings.id, bookingId), eq(bookings.status, "pending")))
+        .returning({ id: bookings.id });
 
+      if (transitioned) {
         // A failed send must not fail the webhook response — Stripe would retry the event,
-        // which would re-run everything above against an already-confirmed booking.
+        // but the status is already 'confirmed' so the guard above prevents a re-send.
         try {
           await sendBookingConfirmationEmails(bookingId);
         } catch (err) {

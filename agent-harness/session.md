@@ -231,3 +231,22 @@ still need the owner: real pricing confirmation, caviar price, WhatsApp number, 
   no auth check when `AUTH_SECRET` was unset (see `decisions.md`), and `/admin` routes
   missing a root `<html>/<body>` entirely (Next.js requires exactly one per route tree;
   `[locale]/layout.tsx` was providing it but `/admin` isn't under `[locale]`)
+
+---
+
+## Session: top-fixes-image-upload-dnd-blocked-dates (2026-07-22)
+
+**Worktree:** `/Users/JackEllis/worktrees/top-fixes-batch` (branch `feat/top-fixes-batch`), off `main` a82ea74.
+
+**Done (Generator):**
+- Checkout: gate on `slotPrice(boat,slot)<=0` (was `priceFullDay`) → no under-charge/€0 session; `isRealDate()` + integer-`guests` → 400 not 500.
+- Webhook: single conditional `UPDATE … WHERE status='pending' RETURNING` → race-safe, no double-email.
+- Email: exported `escapeHtml`, applied to name/email/phone/boatName in confirmation HTML.
+- Removed all 5 `bg-gold-500` button fills → navy (`bg-marine-950/text-sand-50`); login uses `bg-sand-50` (dark bg).
+- Image upload: `image-upload.tsx` drag-and-drop + click-pick + preview; `@vercel/blob` client `upload()` → auth-gated `/api/admin/upload`; `lib/blob.ts`; `deleteImage` scoped to boatId + `del()` of Blob file.
+- Blocked-dates admin: `/admin/blocked-dates` page+actions, nav link, `getAllBlockedDates()`; whole-day blocks.
+- `/experiencias` + `/contacto` localized stub pages; `experiences`/`contact` namespaces added to en.json + es.json.
+
+**Verified:** tsc clean · build clean (24 routes) · vitest 25/25 · playwright 15/15 · blocked-date→checkout 409 PASS · login PASS (authenticated e2e).
+
+**Blocked / next action:** `BLOB_READ_WRITE_TOKEN` in `.env.local` is EMPTY (len 0) — live upload e2e SKIPS. Owner must paste a real `vercel_blob_rw_…` token (Vercel → Storage → Blob) to exercise upload end-to-end; code is complete and builds. Then: Evaluator subagent → decide → merge.

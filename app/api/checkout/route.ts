@@ -2,11 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, or, isNull } from "drizzle-orm";
 import { db } from "@/db/index";
 import { boats, extras, bookings, bookingExtras, blockedDates } from "@/db/schema";
-import { bookingSubtotal, depositAmount, type ExtraLine, type Slot } from "@/lib/pricing";
+import { bookingSubtotal, depositAmount, slotPrice, type ExtraLine, type Slot } from "@/lib/pricing";
 import { generateBookingReference } from "@/lib/booking-reference";
 import { stripe } from "@/lib/stripe";
 
 const SLOTS: Slot[] = ["full_day", "morning", "afternoon"];
+
+/** A YYYY-MM-DD string can match the regex yet not be a real date (e.g. 2099-13-45). */
+function isRealDate(date: string): boolean {
+  const [y, m, d] = date.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return (
+    dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d
+  );
+}
 
 type CheckoutBody = {
   boatSlug?: string;
@@ -40,6 +49,7 @@ export async function POST(request: NextRequest) {
     !slot ||
     !SLOTS.includes(slot) ||
     !guests ||
+    !Number.isInteger(guests) ||
     !name?.trim() ||
     !email?.trim() ||
     !phone?.trim()
@@ -47,7 +57,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });
   }
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !isRealDate(date)) {
     return NextResponse.json({ error: "invalid_date" }, { status: 400 });
   }
   const today = new Date().toISOString().slice(0, 10);
@@ -61,7 +71,10 @@ export async function POST(request: NextRequest) {
   if (!boat) {
     return NextResponse.json({ error: "boat_not_found" }, { status: 404 });
   }
-  if (boat.priceFullDay <= 0) {
+  // Gate on the SELECTED slot's price, not just the full-day price: a boat can have a
+  // full-day price set while a morning/afternoon price is still 0, which would otherwise
+  // produce a booking charged only for its extras (or a €0 Stripe session).
+  if (slotPrice(boat, slot) <= 0) {
     return NextResponse.json({ error: "pricing_unavailable" }, { status: 409 });
   }
   if (guests < 1 || guests > boat.capacity) {

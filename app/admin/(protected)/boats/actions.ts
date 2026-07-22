@@ -1,11 +1,13 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { del } from "@vercel/blob";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/db/index";
 import { boats, boatImages } from "@/db/schema";
+import { isBlobUrl } from "@/lib/blob";
 
 // Every action re-checks the session even though the (protected) layout already gates the
 // route — mutations must not depend on the UI layer alone (CLAUDE.md security checklist).
@@ -101,7 +103,24 @@ export async function addImage(boatId: number, formData: FormData) {
 
 export async function deleteImage(imageId: number, boatId: number) {
   await requireAdmin();
-  await db.delete(boatImages).where(eq(boatImages.id, imageId));
+
+  const [image] = await db
+    .select({ blobUrl: boatImages.blobUrl })
+    .from(boatImages)
+    .where(and(eq(boatImages.id, imageId), eq(boatImages.boatId, boatId)));
+
+  await db
+    .delete(boatImages)
+    .where(and(eq(boatImages.id, imageId), eq(boatImages.boatId, boatId)));
+
+  if (image && isBlobUrl(image.blobUrl)) {
+    // A stray remote file that fails to delete shouldn't block the admin from removing the
+    // DB row — log and move on rather than throwing. Seeded local paths are skipped.
+    await del(image.blobUrl).catch(() => {
+      console.error("blob_delete_failed", { imageId });
+    });
+  }
+
   revalidatePath(`/admin/boats/${boatId}/edit`);
   revalidatePath("/fleet");
 }

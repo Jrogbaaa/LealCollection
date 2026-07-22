@@ -6,6 +6,16 @@ import { formatEuros } from "@/lib/pricing";
 // reliably delivers to the account owner's own address until that's set up.
 const FROM = process.env.RESEND_FROM_EMAIL || "Leal Collection <onboarding@resend.dev>";
 
+/** Escape customer-supplied values before interpolating them into email HTML. */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const copy = {
   en: {
     customerSubject: (ref: string) => `Your Leal Collection reservation ${ref} is confirmed`,
@@ -92,9 +102,9 @@ export async function sendBookingConfirmationEmails(bookingId: number) {
     subject: t.customerSubject(booking.reference),
     html: renderBody(
       t,
-      t.greeting(booking.customerName),
+      t.greeting(escapeHtml(booking.customerName)),
       booking.reference,
-      boatName,
+      escapeHtml(boatName),
       booking.bookingDate,
       booking.slot,
       booking.guests,
@@ -112,9 +122,9 @@ export async function sendBookingConfirmationEmails(bookingId: number) {
       subject: t.ownerSubject(booking.reference),
       html: renderBody(
         t,
-        `${booking.customerName} — ${booking.email} — ${booking.phone}`,
+        `${escapeHtml(booking.customerName)} — ${escapeHtml(booking.email)} — ${escapeHtml(booking.phone)}`,
         booking.reference,
-        boatName,
+        escapeHtml(boatName),
         booking.bookingDate,
         booking.slot,
         booking.guests,

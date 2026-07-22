@@ -40,6 +40,13 @@ export async function getBookingBySessionId(sessionId: string) {
   });
 }
 
+/** Admin-only: every blocked date, soonest first, for the blocked-dates management UI. */
+export async function getAllBlockedDates() {
+  return db.query.blockedDates.findMany({
+    orderBy: (b, { asc }) => [asc(b.date)],
+  });
+}
+
 /** Admin-only: includes unpublished boats, unlike getPublishedBoats(). */
 export async function getAllBoats() {
   return db.query.boats.findMany({

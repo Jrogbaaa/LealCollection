@@ -1,6 +1,35 @@
 {
   "features": [
     {
+      "id": "top-fixes-image-upload-dnd-blocked-dates",
+      "goal": "Ship the evaluation's top fixes (slot-price under-charge gate, gold-CTA-fill removal, atomic webhook confirm, email HTML escaping, checkout input validation) plus a real drag-and-drop/file-picker Vercel Blob image uploader, a blocked-dates admin UI, and /experiencias + /contacto stub pages; verify admin login end-to-end",
+      "why_it_matters": "Revenue correctness (no under-charge / EUR0 Stripe session), brand trust (gold-as-fill violation), security (email HTML injection, double-send emails), and admin efficiency (phone photo upload, calendar blocking) with no remaining 404 nav links",
+      "non_goals": [
+        "Image reordering / sortOrder UI",
+        "Multi-file batch upload; drag-and-drop is single-file",
+        "Image cropping/resizing/compression",
+        "Per-slot blocked-dates authoring (whole-day only for now)",
+        "Extras pricing editor",
+        "Any DB schema change",
+        "Auth rework (login is verify-only)",
+        "Full designed experiencias/contacto pages beyond a minimal branded stub",
+        "Abandoned-checkout reaper / rate limiting / cancel-vs-late-payment reconciliation"
+      ],
+      "acceptance_criteria": [
+        "Checkout rejects a booking whose SELECTED slot price <= 0 with a clean 400, never a EUR0 Stripe session; unit test covers morning-price-zero",
+        "Zero bg-gold-500 on any button; the 5 gold-filled CTAs use the navy button system; gold remains as hairline accent only",
+        "Webhook confirm is a single conditional UPDATE ... WHERE status='pending' RETURNING; emails fire only on a transitioned row; a duplicate delivery does not re-send (new test)",
+        "name/email/phone are HTML-escaped in confirmation email HTML; unit test covers an injection-y name",
+        "Checkout returns 400 (not 500) for an unreal date or non-integer guests",
+        "Admin can drag-and-drop OR click-pick an image (desktop+mobile), it uploads to Vercel Blob via the auth-gated /api/admin/upload client flow, renders in admin list and /fleet; delete removes the Blob file (skipping non-Blob URLs) scoped to boatId",
+        "New auth-gated blocked-dates admin route lists/adds/removes whole-day blocks in blocked_dates; the public calendar reflects a block",
+        "/experiencias and /contacto render on-brand and the header links no longer 404",
+        "Admin login verified working end-to-end in a real browser",
+        "tsc -b, npm run build, npx vitest run all pass; admin+booking-flow+public-site Playwright pass; one real Blob upload exercised (or token flagged invalid)"
+      ],
+      "status": "planned"
+    },
+    {
       "id": "admin-boat-image-upload",
       "goal": "Replace admin's paste-a-URL image input with a real file upload to Vercel Blob",
       "why_it_matters": "Admin efficiency — removes the need to host photos externally before adding them to a boat listing",
