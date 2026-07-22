@@ -49,10 +49,15 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   one" rather than a free checkbox. Champagne is correctly priced at €90.
 - **[WHATSAPP-NUMBER] P0** — Still the intentional placeholder (`34600000000`) in
   `lib/contact.ts`.
-- **[DOMAIN] P0** — Still open. Blocks Resend sending-domain verification — customer
-  confirmation emails currently only deliver reliably to the account owner's own Resend
-  address, not arbitrary customer inboxes. The integration itself is built and verified.
-- **[STRIPE-BANK] P2** — Unchanged, not urgent.
+- **[DOMAIN] P0** — Email side resolved; website domain deferred by owner. Resend already
+  has a **verified** sending domain (`hakaglobal.com`), and `RESEND_FROM_EMAIL` is now set in
+  Vercel Production to `Leal Collection <no-reply@hakaglobal.com>`, so confirmation emails
+  deliver to arbitrary customer inboxes (verified live: a test send from that domain to a
+  non-owner Gmail returned 200). Remaining, non-blocking: (1) the site runs on the default
+  `leal-collection.vercel.app` domain — attach a custom domain later; (2) sender shows
+  `hakaglobal.com`, not a Leal-branded domain — verify a `lealcollection.com` domain in Resend
+  when brand alignment matters.
+- **[STRIPE-BANK] P2** — Unchanged, not urgent. Gates live charges/payouts only, not test-mode.
 - **[FUEL] P3** — Unchanged.
 - **[ADMIN-CREDENTIALS-ROTATION]** — The admin password was set via chat during this
   session. Consider rotating it once the owner has a password manager entry for it.
@@ -76,10 +81,15 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   the original spec). Functional E2E coverage exists; performance doesn't yet. The mobile
   review also reproduced Next's LCP warning for the fleet-detail hero image, which should be
   included in this pass.
-- **[DEPLOY] P2** — Vercel project setup, env vars mirrored from `.env.local` (including the
-  now-generated `AUTH_SECRET`, `STRIPE_WEBHOOK_SECRET` from the *production* Stripe webhook
-  endpoint — the current one is a local `stripe listen` secret and won't work in prod),
-  domain attached once `[DOMAIN]` is resolved.
+- **[DEPLOY] P2** — Mostly done. Vercel project `ja-ck/leal-collection` is live at
+  `leal-collection.vercel.app`, GitHub push-to-deploy is connected, and all env vars are
+  mirrored into Production (incl. `RESEND_FROM_EMAIL`). Public routes, admin auth-gating, and
+  image optimization verified 200 on the live site. **Still outstanding:** (1)
+  `STRIPE_WEBHOOK_SECRET` in prod is still the local `stripe listen` secret — create a
+  production webhook endpoint at `https://leal-collection.vercel.app/api/webhooks/stripe` and
+  paste its `whsec_…` (works in test mode now, no bank needed), so the booking→email chain
+  actually fires; (2) `BLOB_READ_WRITE_TOKEN` is an empty string in Production — set a real
+  token once `[ADMIN-IMAGE-UPLOAD]` is merged; (3) custom domain deferred (see `[DOMAIN]`).
 - **[CTA-GOLD-FILL] P3** — `bg-gold-500` solid-fill CTA buttons on the homepage hero
   (`app/[locale]/page.tsx`) and fleet detail page (`app/[locale]/fleet/[slug]/page.tsx`)
   violate CLAUDE.md's "gold is an accent only, never a button fill" rule. Same defect was
