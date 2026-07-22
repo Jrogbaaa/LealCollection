@@ -29,12 +29,14 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   `app/admin/(protected)/boats/image-upload.tsx` (dropzone), `deleteImage` scoped to
   `boatId` and deleting the underlying Blob file. `tsc -b` / `npm run build` /
   `npx vitest run` (25/25) all pass; `npx playwright test` is 15 passed + 1 **skipped** —
-  the skip is the live-upload case, correctly gated on `BLOB_READ_WRITE_TOKEN` being a
-  literal empty string in `.env.local` (confirmed via a direct `@vercel/blob put` probe:
-  "No blob credentials found"). **Still needs a real token** (`vercel_blob_rw_…`) from the
-  Vercel dashboard → Storage → Blob store → `.env.local` tab, pasted into the worktree's
-  and main repo's `.env.local` AND the Vercel Production env. Once set, rerun
-  `npx playwright test` to confirm the upload case passes, then merge.
+  the skip is the live-upload case, gated on the token. A real token is now set locally, but
+  a `put` probe returned **"Cannot use public access on a private store"** — the connected
+  Blob store (`store_d1IATz6AfMHbVtTo`) is configured **private**. Boat photos are shown on
+  the public site, so the store must be **public** (our code correctly uses
+  `access: "public"`). **Action:** create/use a **public** Vercel Blob store, put its
+  `BLOB_READ_WRITE_TOKEN` in local `.env.local` + Vercel (Production **and** Preview), then
+  rerun `npx playwright test admin-features` — the upload case will pass. Do NOT switch the
+  code to `access: "private"` (would break public image rendering).
 
 ## Owner input required (blocking)
 

@@ -10,5 +10,25 @@ if (!process.env.DATABASE_URL) {
   config({ path: ".env.local" });
 }
 
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle(sql, { schema });
+type Db = ReturnType<typeof drizzle<typeof schema>>;
+
+// Initialized on first use, not at import. Next's production build evaluates every route
+// module during "Collecting page data"; a top-level neon() would throw there whenever
+// DATABASE_URL is absent (e.g. Vercel Preview builds), failing the build for a connection
+// that isn't needed until a request runs. The Proxy defers that to first actual use.
+let instance: Db | undefined;
+function getDb(): Db {
+  if (!instance) {
+    const sql = neon(process.env.DATABASE_URL!);
+    instance = drizzle(sql, { schema });
+  }
+  return instance;
+}
+
+export const db = new Proxy({} as Db, {
+  get(_target, prop) {
+    const real = getDb();
+    const value = real[prop as keyof Db];
+    return typeof value === "function" ? value.bind(real) : value;
+  },
+});

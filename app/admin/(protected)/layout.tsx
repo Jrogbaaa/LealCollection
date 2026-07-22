@@ -42,7 +42,7 @@ export default async function ProtectedAdminLayout({
             unoptimized
           />
           <span className="font-display text-lg leading-tight text-marine-950 sm:text-xl">
-            Leal Collection — Admin
+            Admin
           </span>
         </Link>
         <nav className="flex w-full items-center justify-between gap-4 border-t border-marine-950/10 pt-3 text-sm text-marine-900/80 md:w-auto md:justify-start md:gap-6 md:border-0 md:pt-0">

@@ -60,7 +60,7 @@ export default function SiteHeader({
           : "absolute inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-6 md:px-12"
       }
     >
-      <Link href="/" className="flex items-center gap-3">
+      <Link href="/" aria-label="Leal Collection — home" className="flex items-center">
         <Image
           src="/images/brand/logo.webp"
           alt="Leal Collection"
@@ -71,11 +71,6 @@ export default function SiteHeader({
           priority
           unoptimized
         />
-        <span
-          className={`font-display text-xl tracking-wide md:text-2xl ${isSolid ? "text-marine-950" : "text-white"}`}
-        >
-          Leal Collection
-        </span>
       </Link>
 
       <nav
