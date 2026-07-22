@@ -1,6 +1,6 @@
 {
-  "current_feature": "production-admin-image-upload",
-  "phase": "evaluator-pass-complete",
+  "current_feature": null,
+  "phase": "complete",
   "complete": [
     "Next.js 16 + Tailwind v4 scaffold, package renamed to leal-collection",
     "Agent harness ported from /Users/JackEllis/ui (prompts, contract, rubric, command)",
@@ -23,11 +23,10 @@
     "booking-page-design-cleanup: fixed calendar accent color (react-day-picker's own .rdp-root re-declares --rdp-accent-color, so the override must go through DayPicker's style prop, not a wrapper div), restyled included/ask-us extras as grid rows instead of stray captions, reworded askUsExtra copy in en/es, replaced bg-gold-500 CTA fill with bg-marine-950/text-sand-50. Verified live via getComputedStyle (marine-700/gold-600 resolved, not blue) in both locales. tsc -b clean, npm run build clean, vitest 18/18, npx playwright test 14/14 (separate Evaluator subagent pass, see findings.md).",
     "logo-visibility-mobile-nav-booking-ux: header logo resized (44px fixed -> 48-56px responsive) with a brightness(0) invert(1) white-silhouette filter on the transparent/hero header variant (verified via getComputedStyle), full color unchanged on the solid variant; admin login + protected layout got the logo for the first time (previously text-only); SiteHeader converted to a client component with a mobile hamburger menu (open, close on link click, close on outside tap, close on Escape); /reserva booking flow got a sticky step-progress rail, auto-scroll to the next section on date/slot selection, and a fixed mobile-only sticky CTA bar with a live deposit total. Found and fixed a real pre-existing horizontal-overflow bug at <=375px (flex/grid min-width:auto blowout from the day-picker's intrinsic content width) via min-w-0 on /reserva's <main> and the booking form's grid-item children -- confirmed worse (16px) on unmodified main, 0px after. First Evaluator pass returned NEEDS REVISION (mobile menu didn't close on outside tap/Escape per spec); fixed and re-verified, second pass PASS. tsc -b clean, npm run build clean, vitest 18/18, npx playwright test 14/14. Built in worktree /Users/JackEllis/worktrees/logo-mobile-flow (branch feat/logo-mobile-flow), not yet merged.",
     "admin-mobile-ux: protected admin header stacks cleanly at 360px, boats/bookings use readable mobile records below md while preserving desktop tables, long image URLs truncate without hiding Delete, and Playwright covers all existing admin routes at 360px. Separate Evaluator verdict PASS: tsc/build clean, Vitest 18/18, Playwright 15/15, focused 360px/1280px checks green; final semantic markup follow-up independently confirmed with admin Playwright 6/6. Shipped to main.",
-    "top-fixes-image-upload-dnd-blocked-dates: shipped to main via PR #4; Vercel Production deploy green. Blob uploader, blocked dates, localized nav pages, checkout/webhook/email hardening, and CTA corrections are live."
+    "top-fixes-image-upload-dnd-blocked-dates: shipped to main via PR #4; Vercel Production deploy green. Blob uploader, blocked dates, localized nav pages, checkout/webhook/email hardening, and CTA corrections are live.",
+    "production-admin-image-upload: shipped to main via PR #5. Manage photos is explicit on desktop/mobile, Vercel Production deploy passed, and a live authenticated upload rendered in admin and public fleet before UI deletion. Follow-up checks confirmed zero matching DB rows and an empty Blob store."
   ],
-  "in_progress": [
-    "production-admin-image-upload (worktree /Users/JackEllis/worktrees/admin-image-upload-live, branch feat/admin-image-upload-live): Evaluator PASS, rubric 5.0. Reproduced that the uploader was live but buried at the bottom of Edit while Boats exposed only a generic Edit link; also reproduced Production upload failure because BLOB_READ_WRITE_TOKEN was absent. Added explicit Manage photos actions on desktop/mobile, a #photos anchor, clear Boat photos guidance, and moved upload before the existing gallery. Installed the supplied public-store token locally and in Vercel Production+Preview without committing it. tsc/build clean, Vitest 25/25, full Playwright 18/18. Separate Evaluator independently verified unauthenticated 401/no token, desktop/360px discovery, real drag/drop preview/upload/DB persistence/admin+public render/UI delete, seeded-image safety, and Blob cleanup 0→0. Ready to ship; final acceptance is the identical lifecycle on live Production after deploy."
-  ],
+  "in_progress": [],
   "blocked": [
     "Real charter pricing confirmation (current 950e/600e is an estimate) — owner input needed",
     "Caviar snack price — owner input needed",

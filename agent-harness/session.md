@@ -1,6 +1,6 @@
 # Session
 
-**State (current):** Generator complete for `production-admin-image-upload` in worktree
+**State (current):** Complete and live for `production-admin-image-upload` in worktree
 `/Users/JackEllis/worktrees/admin-image-upload-live` (branch
 `feat/admin-image-upload-live`). Live Production diagnosis found two separate issues: the
 uploader existed only at the bottom of an individual boat editor, while the Boats screen
@@ -22,8 +22,14 @@ real drag/drop preview/upload, exactly-one DB persistence, admin and public rend
 deletion, DB/Blob cleanup, seeded-image preservation, and 360px containment. The Blob store
 returned from 0 objects to 0.
 
-**Next action:** ship to main, wait for Vercel Production, then repeat upload → admin/public
-render → delete on the live URL and confirm no DB/Blob residue before closing the feature.
+**Production closure:** shipped via PR #5 and deployed from `main` commit `893fe4f`. On the
+live URL, authenticated admin login exposed `Manage photos`; a disposable PNG uploaded to
+the configured public Blob store, appeared in the admin gallery and public Cranchi fleet
+page, and was deleted through the admin UI. Follow-up checks found zero matching database
+rows and zero objects in the Blob store. No test asset or row remains.
+
+**Next action:** none — implementation, evaluator review, deployment, live verification,
+cleanup, and documentation reconciliation are complete.
 
 ---
 

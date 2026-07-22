@@ -1036,3 +1036,14 @@ authenticated upload → admin render → public boat render → delete flow aga
 Production URL. Confirm the DB row and Blob object are absent afterward before declaring
 the owner request complete. Optionally strengthen the permanent real-upload spec with the
 public-page render and post-delete Blob-absence assertions used by this evaluator.
+
+### Production Verification (2026-07-22)
+
+PR #5 was merged to `main` at commit `893fe4f`, and the Vercel Production status completed
+successfully. The authenticated live admin displayed the new `Manage photos` action and
+deep-linked to `Boat photos`. A disposable PNG was selected through the live file picker,
+uploaded to the configured public Vercel Blob store, persisted once, rendered in the admin
+gallery, and rendered on `/en/fleet/cranchi-32`. The image was then deleted through the live
+admin UI. A cache-bypassed public-page check found no remaining image, a read-only database
+query found zero rows with the probe alt text, and the Blob store listed zero objects. The
+post-deploy acceptance criterion is therefore **PASS**, with no test residue.
