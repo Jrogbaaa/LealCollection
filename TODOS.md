@@ -23,14 +23,13 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 
 ## Admin image upload follow-up
 
-- **[ADMIN-IMAGE-UPLOAD] P1 — evaluator PASS, ready to deploy.** Drag/drop and click-pick
-  upload are shipped from PR #4; this follow-up makes photo management obvious from the
-  desktop/mobile Boats list and moves the uploader above the current gallery. The valid
-  public-store `BLOB_READ_WRITE_TOKEN` is configured locally and in Vercel Production +
-  Preview (gitignored). TypeScript/build pass, Vitest is 25/25, Playwright is 18/18, and a
-  separate Evaluator independently verified auth denial plus a real upload → DB persistence
-  → admin/public render → UI delete lifecycle with the Blob store restored to empty. Final
-  closure requires repeating that lifecycle on the live URL after this branch deploys.
+- **[ADMIN-IMAGE-UPLOAD] P1 — complete, shipped via PR #5.** The desktop/mobile Boats list
+  now exposes `Manage photos`, which deep-links to a labelled uploader above the existing
+  gallery. The valid public-store Blob token is configured outside Git in Vercel Production
+  + Preview. TypeScript/build pass, Vitest is 25/25, Playwright is 18/18, and a separate
+  Evaluator passed the real upload lifecycle. After Vercel deployed `main`, the same flow
+  passed on the live URL: authenticated upload, public Blob URL, admin render, public fleet
+  render, UI delete, zero matching database rows, and an empty Blob store after cleanup.
 
 ## Owner input required (blocking)
 
