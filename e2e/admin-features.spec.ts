@@ -17,6 +17,27 @@ test.describe("admin image upload + blocked dates", () => {
     await expect(page).toHaveURL(/\/admin\/boats/);
   }
 
+  test("makes boat photo management obvious on desktop and mobile", async ({ page }) => {
+    await login(page);
+
+    const desktopList = page.getByTestId("desktop-boat-table");
+    await desktopList.getByRole("link", { name: "Manage photos" }).click();
+    await expect(page).toHaveURL(/\/admin\/boats\/\d+\/edit#photos$/);
+    await expect(page.getByRole("heading", { name: "Boat photos" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Add an image — drag a file here or click to browse" })
+    ).toBeVisible();
+
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/admin/boats");
+    const mobileList = page.getByTestId("mobile-boat-list");
+    await mobileList.getByRole("link", { name: "Manage photos" }).click();
+    await expect(page).toHaveURL(/\/admin\/boats\/\d+\/edit#photos$/);
+    await expect(page.getByRole("heading", { name: "Boat photos" })).toBeVisible();
+    const bodyScrollWidth = await page.locator("body").evaluate((body) => body.scrollWidth);
+    expect(bodyScrollWidth).toBeLessThanOrEqual(360);
+  });
+
   test("uploads a real image to Vercel Blob and can delete it", async ({ page }) => {
     test.skip(
       !process.env.BLOB_READ_WRITE_TOKEN,
@@ -24,8 +45,11 @@ test.describe("admin image upload + blocked dates", () => {
     );
     await login(page);
     await page.goto("/admin/boats");
-    await page.getByRole("link", { name: /edit/i }).first().click();
-    await expect(page).toHaveURL(/\/admin\/boats\/\d+\/edit/);
+    await page
+      .getByTestId("desktop-boat-table")
+      .getByRole("link", { name: "Manage photos" })
+      .click();
+    await expect(page).toHaveURL(/\/admin\/boats\/\d+\/edit#photos$/);
 
     // The dropzone hides a file input; setInputFiles drives the same path a click-pick does.
     await page.locator('input[type="file"]').setInputFiles(

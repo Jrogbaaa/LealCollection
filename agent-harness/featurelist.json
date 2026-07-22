@@ -24,7 +24,7 @@
         "TypeScript, build, Vitest, focused Playwright, and separate Evaluator pass",
         "The post-deploy Production upload/render/delete flow passes"
       ],
-      "status": "planner-complete"
+      "status": "evaluator-pass-complete; rubric 5.0; tsc/build/Vitest 25/25 and Playwright 18/18 pass; independent real drag/drop upload persisted and rendered in admin/public fleet, then deleted with DB and Blob cleanup; ready to deploy for final live Production repeat"
     },
     {
       "id": "top-fixes-image-upload-dnd-blocked-dates",

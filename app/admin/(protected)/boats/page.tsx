@@ -28,12 +28,20 @@ export default async function AdminBoatsPage() {
                 <h2 className="font-display text-xl text-marine-950">{boat.nameEn}</h2>
                 <p className="mt-1 break-all text-xs text-marine-900/50">{boat.slug}</p>
               </div>
-              <Link
-                href={`/admin/boats/${boat.id}/edit`}
-                className="shrink-0 text-sm text-marine-700 hover:underline"
-              >
-                Edit
-              </Link>
+              <div className="flex shrink-0 flex-col items-end gap-2 text-sm">
+                <Link
+                  href={`/admin/boats/${boat.id}/edit`}
+                  className="text-marine-700 hover:underline"
+                >
+                  Edit details
+                </Link>
+                <Link
+                  href={`/admin/boats/${boat.id}/edit#photos`}
+                  className="text-marine-700 hover:underline"
+                >
+                  Manage photos
+                </Link>
+              </div>
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-marine-950/10 pt-3 text-sm">
               <div>
@@ -59,7 +67,7 @@ export default async function AdminBoatsPage() {
               <th className="py-3">Slug</th>
               <th className="py-3">Full day</th>
               <th className="py-3">Published</th>
-              <th className="py-3" />
+              <th className="py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -74,12 +82,20 @@ export default async function AdminBoatsPage() {
                   {boat.isPublished ? "Yes" : "No"}
                 </td>
                 <td className="py-3 text-right">
-                  <Link
-                    href={`/admin/boats/${boat.id}/edit`}
-                    className="text-marine-700 hover:underline"
-                  >
-                    Edit
-                  </Link>
+                  <div className="flex justify-end gap-4">
+                    <Link
+                      href={`/admin/boats/${boat.id}/edit`}
+                      className="text-marine-700 hover:underline"
+                    >
+                      Edit details
+                    </Link>
+                    <Link
+                      href={`/admin/boats/${boat.id}/edit#photos`}
+                      className="text-marine-700 hover:underline"
+                    >
+                      Manage photos
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}
