@@ -52,6 +52,19 @@ describe("bookingSubtotal", () => {
   it("equals the bare slot price when there are no extras", () => {
     expect(bookingSubtotal(boat, "full_day", [])).toBe(190000);
   });
+
+  // Guards the checkout under-charge fix: with a 0 morning price but a set full-day price,
+  // the subtotal collapses to extras-only. The checkout route must reject on the SELECTED
+  // slot's price (slotPrice(boat, slot) <= 0), not on priceFullDay.
+  it("exposes the zero-slot-price under-charge the checkout gate must catch", () => {
+    const partiallyPriced: BoatPricing = {
+      priceFullDay: 190000,
+      priceMorning: 0,
+      priceAfternoon: 0,
+    };
+    expect(slotPrice(partiallyPriced, "morning")).toBe(0);
+    expect(bookingSubtotal(partiallyPriced, "morning", [{ extraId: 1, unitPrice: 9000, qty: 1 }])).toBe(9000);
+  });
 });
 
 describe("depositAmount", () => {

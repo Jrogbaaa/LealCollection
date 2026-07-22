@@ -51,6 +51,35 @@
     "tagline": "Fine Yachting, Ibiza",
     "rights": "Todos los derechos reservados."
   },
+  "experiences": {
+    "kicker": "En el Mar",
+    "title": "Formas de vivir el día",
+    "intro": "Cada chárter lleva patrón y se diseña a tu medida. Tres puntos de partida — cuéntanos qué tienes en mente y montamos el día alrededor.",
+    "sunsetTitle": "Crucero al atardecer",
+    "sunsetBody": "Sal de Marina Ibiza cuando la luz se suaviza, fondea frente a la costa oeste y mira caer el sol tras Es Vedrà con una copa en la mano.",
+    "islandTitle": "Día en Formentera",
+    "islandBody": "Un día entero hacia las aguas turquesas de Formentera — paradas de baño, almuerzo fondeados y la travesía que hace que valga la pena.",
+    "privateTitle": "Celebración privada",
+    "privateBody": "Cumpleaños, pedidas, una escapada tranquila. Champán, caviar y servicio de toallas a bordo; el resto lo decides tú.",
+    "ctaTitle": "¿Tienes un día en mente?",
+    "ctaBody": "Reserva online o escríbenos — adaptamos la ruta, los horarios y los extras a ti.",
+    "ctaButton": "Reserva tu día",
+    "contactButton": "Escríbenos"
+  },
+  "contact": {
+    "kicker": "Contacto",
+    "title": "Habla con nosotros",
+    "intro": "La forma más rápida de contactarnos es WhatsApp — resolvemos dudas de disponibilidad, rutas y extras, y reservamos fechas mientras lo decides.",
+    "whatsappLabel": "WhatsApp",
+    "whatsappValue": "Escríbenos directamente",
+    "whatsappButton": "Abrir WhatsApp",
+    "marinaLabel": "Puerto base",
+    "marinaValue": "Marina Ibiza, Eivissa",
+    "seasonLabel": "Temporada",
+    "seasonValue": "Mayo – octubre, cada día",
+    "reserveNote": "¿Listo para reservar? Consulta la disponibilidad y reserva una fecha online.",
+    "reserveButton": "Reservar online"
+  },
   "reserva": {
     "kicker": "Reservar",
     "title": "Tu día en el mar",

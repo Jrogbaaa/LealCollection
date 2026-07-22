@@ -160,7 +160,7 @@ export default async function BoatPage({
             )}
             <Link
               href={`/reserva?boat=${boat.slug}`}
-              className="mt-8 block rounded-full bg-gold-500 px-8 py-4 text-center text-sm uppercase tracking-widest text-marine-950 transition hover:bg-gold-300"
+              className="mt-8 block rounded-full bg-marine-950 px-8 py-4 text-center text-sm uppercase tracking-widest text-sand-50 transition hover:bg-marine-900"
             >
               {t("reserveCta")}
             </Link>

@@ -52,6 +52,9 @@ export default async function ProtectedAdminLayout({
           <Link href="/admin/bookings" className="hover:text-marine-950">
             Bookings
           </Link>
+          <Link href="/admin/blocked-dates" className="hover:text-marine-950">
+            Blocked dates
+          </Link>
           <form
             action={async () => {
               "use server";

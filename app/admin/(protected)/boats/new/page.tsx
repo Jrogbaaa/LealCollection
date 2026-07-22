@@ -9,7 +9,7 @@ export default function NewBoatPage() {
         <BoatFormFields isNew />
         <button
           type="submit"
-          className="mt-8 rounded-full bg-gold-500 px-8 py-3 text-sm uppercase tracking-widest text-marine-950 hover:bg-gold-300"
+          className="mt-8 rounded-full bg-marine-950 px-8 py-3 text-sm uppercase tracking-widest text-sand-50 hover:bg-marine-900"
         >
           Create boat
         </button>

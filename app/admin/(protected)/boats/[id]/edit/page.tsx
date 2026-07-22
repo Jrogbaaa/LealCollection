@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getBoatById } from "@/db/queries";
 import BoatFormFields from "../../boat-form";
+import ImageUpload from "../../image-upload";
 import { updateBoat, deleteBoat, addImage, deleteImage } from "../../actions";
 
 export default async function EditBoatPage({
@@ -27,7 +28,7 @@ export default async function EditBoatPage({
         <BoatFormFields boat={boat} isNew={false} />
         <button
           type="submit"
-          className="mt-8 rounded-full bg-gold-500 px-8 py-3 text-sm uppercase tracking-widest text-marine-950 hover:bg-gold-300"
+          className="mt-8 rounded-full bg-marine-950 px-8 py-3 text-sm uppercase tracking-widest text-sand-50 hover:bg-marine-900"
         >
           Save changes
         </button>
@@ -62,30 +63,7 @@ export default async function EditBoatPage({
           })}
         </ul>
 
-        <form action={addImageWithId} className="mt-6 grid gap-3 sm:grid-cols-2">
-          <input
-            required
-            name="blobUrl"
-            placeholder="Image URL"
-            className="rounded-sm border border-marine-950/20 bg-white px-4 py-2.5 sm:col-span-2"
-          />
-          <input
-            name="altEn"
-            placeholder="Alt text (EN)"
-            className="rounded-sm border border-marine-950/20 bg-white px-4 py-2.5"
-          />
-          <input
-            name="altEs"
-            placeholder="Alt text (ES)"
-            className="rounded-sm border border-marine-950/20 bg-white px-4 py-2.5"
-          />
-          <button
-            type="submit"
-            className="sm:col-span-2 rounded-full border border-marine-950/20 px-6 py-2.5 text-sm uppercase tracking-widest text-marine-950 hover:border-marine-950"
-          >
-            Add image
-          </button>
-        </form>
+        <ImageUpload action={addImageWithId} />
       </section>
 
       <section className="mt-16 border-t border-marine-950/10 pt-8">

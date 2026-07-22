@@ -23,18 +23,18 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 
 ## Code-complete, blocked on a credential
 
-- **[ADMIN-IMAGE-UPLOAD] P1** — Boat image upload to Vercel Blob is fully built on
-  `feat/admin-boat-image-upload` (not yet merged): `app/api/admin/upload/route.ts`
-  (auth-gated token route), a client `ImageUpload` component, `deleteImage` now scoped to
+- **[ADMIN-IMAGE-UPLOAD] P1** — Boat image upload to Vercel Blob, now with **drag-and-drop
+  + click-pick + preview**, is built on `feat/top-fixes-batch` (not yet merged):
+  `app/api/admin/upload/route.ts` (auth-gated client-upload token route),
+  `app/admin/(protected)/boats/image-upload.tsx` (dropzone), `deleteImage` scoped to
   `boatId` and deleting the underlying Blob file. `tsc -b` / `npm run build` /
-  `npx vitest run` (21/21) all pass; `npx playwright test` is 14/15 — the one failure is
-  **not a code bug**, it's `BLOB_READ_WRITE_TOKEN` in `.env.local` being a literal empty
-  string (`BLOB_READ_WRITE_TOKEN=""`), confirmed via a direct `curl` reproduction of
-  Vercel Blob's "no read-write token found" error. **Needs a real token** from the
-  project's Vercel dashboard → Storage tab → Blob store → `.env.local` tab, pasted into
-  both the worktree's and the main repo's `.env.local`. Once set, rerun
-  `npx playwright test` to confirm 15/15 and merge the branch. See
-  `agent-harness/findings.md` "Follow-up" section for the full trace.
+  `npx vitest run` (25/25) all pass; `npx playwright test` is 15 passed + 1 **skipped** —
+  the skip is the live-upload case, correctly gated on `BLOB_READ_WRITE_TOKEN` being a
+  literal empty string in `.env.local` (confirmed via a direct `@vercel/blob put` probe:
+  "No blob credentials found"). **Still needs a real token** (`vercel_blob_rw_…`) from the
+  Vercel dashboard → Storage → Blob store → `.env.local` tab, pasted into the worktree's
+  and main repo's `.env.local` AND the Vercel Production env. Once set, rerun
+  `npx playwright test` to confirm the upload case passes, then merge.
 
 ## Owner input required (blocking)
 
@@ -66,15 +66,10 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
 
 - **[ADMIN-EXTRAS] P2** — Extras pricing editor (champagne / caviar / skipper / towel
   toggle) — currently only editable via direct DB access.
-- **[ADMIN-BLOCKED-DATES] P2** — Calendar UI over the `blocked_dates` table. The booking
-  flow already reads and respects `blocked_dates` (both whole-day and per-slot blocks); only
-  the admin authoring UI is missing.
 - **[ADMIN-IMAGE-SORT-ORDER] P3** — The boat image add form never renders a `sortOrder`
   input (the server action reads it but nothing sets it), so every image lands at `0` with
   no way to reorder. Pre-existing gap, noticed while building `[ADMIN-IMAGE-UPLOAD]` but
   deliberately left out of that change as unrelated scope.
-- **[EXPERIENCIAS-PAGE] P2** — `/experiencias` page (linked in nav, doesn't exist yet).
-- **[CONTACTO-PAGE] P2** — `/contacto` page (linked in nav, doesn't exist yet).
 - **[LEGAL-PAGES] P2** — `/legal/*` (privacy policy, terms) — needed before taking real
   payments in production.
 - **[LIGHTHOUSE-PASS] P2** — No performance/SEO audit run yet (Lighthouse ≥95 target from
@@ -90,11 +85,23 @@ confirmation email delivered via Resend, admin login/CRUD exercised in the brows
   paste its `whsec_…` (works in test mode now, no bank needed), so the booking→email chain
   actually fires; (2) `BLOB_READ_WRITE_TOKEN` is an empty string in Production — set a real
   token once `[ADMIN-IMAGE-UPLOAD]` is merged; (3) custom domain deferred (see `[DOMAIN]`).
-- **[CTA-GOLD-FILL] P3** — `bg-gold-500` solid-fill CTA buttons on the homepage hero
-  (`app/[locale]/page.tsx`) and fleet detail page (`app/[locale]/fleet/[slug]/page.tsx`)
-  violate CLAUDE.md's "gold is an accent only, never a button fill" rule. Same defect was
-  fixed on `/reserva` in the `booking-page-design-cleanup` pass; owner deferred fixing the
-  other two instances to a follow-up (scope decision recorded in `agent-harness/decisions.md`).
+## Shipped on `feat/top-fixes-batch` (pending merge)
+
+- **[ADMIN-BLOCKED-DATES]** — `/admin/blocked-dates` admin UI (list / add / remove whole-day
+  blocks) over `blocked_dates`; nav link added; verified end-to-end (a blocked date makes
+  `/api/checkout` return 409 `date_unavailable`). Per-slot authoring still deferred.
+- **[EXPERIENCIAS-PAGE] / [CONTACTO-PAGE]** — `/experiencias` and `/contacto` built as
+  localized (EN/ES) on-brand stub pages; the header links no longer 404.
+- **[CTA-GOLD-FILL]** — all five remaining `bg-gold-500` button fills removed (homepage hero,
+  fleet detail reserve, admin new/edit/login) → navy `bg-marine-950` (login uses `bg-sand-50`
+  on its dark bg). Zero `bg-gold-500` button fills remain repo-wide.
+- **[CHECKOUT-SLOT-PRICE]** — checkout now gates on the *selected slot's* price
+  (`slotPrice(boat, slot) <= 0`), closing the morning/afternoon under-charge; plus real-date
+  and integer-guests validation return 400 instead of 500.
+- **[WEBHOOK-ATOMIC]** — Stripe webhook confirm is a single conditional
+  `UPDATE … WHERE status='pending' RETURNING`, so duplicate deliveries can't double-send email.
+- **[EMAIL-ESCAPE]** — customer name/email/phone (and boat name) are HTML-escaped in the
+  confirmation emails.
 
 ## Newly identified review follow-ups
 
