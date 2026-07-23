@@ -25,7 +25,7 @@ export default async function ExperiencesPage() {
       <main>
         <section className="bg-marine-950 px-6 py-28 text-sand-50 md:px-12">
           <div className="mx-auto max-w-6xl">
-            <p className="text-sm uppercase tracking-[0.3em] text-gold-300">
+            <p className="text-sm uppercase tracking-[0.3em] text-marine-200">
               {t("kicker")}
             </p>
             <h1 className="mt-4 max-w-2xl font-display text-5xl leading-[1.05] md:text-6xl">

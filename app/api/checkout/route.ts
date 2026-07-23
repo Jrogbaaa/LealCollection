@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
   const extraLines: ExtraLine[] = selectedExtras.map((e) => ({
     extraId: e.id,
     unitPrice: e.price,
-    qty: 1,
+    qty: e.key === "towel_service" ? guests : 1,
   }));
 
   const subtotal = bookingSubtotal(boat, slot, extraLines);
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       selectedExtras.map((e) => ({
         bookingId: booking.id,
         extraId: e.id,
-        qty: 1,
+        qty: e.key === "towel_service" ? guests : 1,
         unitPriceAtBooking: e.price,
       }))
     );

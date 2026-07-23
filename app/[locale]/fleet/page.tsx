@@ -28,7 +28,7 @@ export default async function FleetPage({
 
       <main className="py-24">
         <div className="mx-auto max-w-6xl px-6 md:px-12">
-          <p className="text-sm uppercase tracking-[0.3em] text-gold-600">
+          <p className="text-sm uppercase tracking-[0.3em] text-marine-700 font-semibold">
             {t("kicker")}
           </p>
           <h1 className="mt-4 max-w-2xl font-display text-5xl text-marine-950">
@@ -81,7 +81,7 @@ export default async function FleetPage({
                     </p>
                     <Link
                       href={`/fleet/${boat.slug}`}
-                      className="mt-6 inline-block border-b border-gold-500 pb-1 text-sm uppercase tracking-widest text-marine-950 transition hover:border-marine-950"
+                      className="mt-6 inline-block border-b border-marine-700 pb-1 text-sm uppercase tracking-widest text-marine-950 transition hover:border-marine-950"
                     >
                       {t("viewBoat")}
                     </Link>

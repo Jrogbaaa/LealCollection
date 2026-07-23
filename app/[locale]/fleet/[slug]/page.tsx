@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import BoatGallery from "@/components/boat-gallery";
 import { getBoatBySlug, getExtras } from "@/db/queries";
 import { formatEuros } from "@/lib/pricing";
 
@@ -71,7 +72,7 @@ export default async function BoatPage({
               {locale === "es" ? boat.descriptionEs : boat.descriptionEn}
             </p>
 
-            <p className="mt-10 text-sm uppercase tracking-[0.3em] text-gold-600">
+            <p className="mt-10 text-sm uppercase tracking-[0.3em] text-marine-700 font-semibold">
               {t("specsKicker")}
             </p>
             <dl className="mt-4 grid grid-cols-2 gap-6 sm:grid-cols-4">
@@ -97,23 +98,9 @@ export default async function BoatPage({
               </div>
             </dl>
 
-            {gallery.length > 0 && (
-              <div className="mt-16 grid grid-cols-2 gap-3 md:grid-cols-3">
-                {gallery.map((img) => (
-                  <div key={img.id} className="aspect-[4/3] overflow-hidden rounded-sm">
-                    <Image
-                      src={img.blobUrl}
-                      alt={locale === "es" ? img.altEs : img.altEn}
-                      width={500}
-                      height={375}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <BoatGallery images={boat.images} locale={locale} />
 
-            <p className="mt-16 text-sm uppercase tracking-[0.3em] text-gold-600">
+            <p className="mt-16 text-sm uppercase tracking-[0.3em] text-marine-700 font-semibold">
               {t("onBoardKicker")}
             </p>
             <ul className="mt-4 grid gap-px overflow-hidden rounded-sm bg-marine-950/10 sm:grid-cols-2">
@@ -125,7 +112,7 @@ export default async function BoatPage({
                   <span className="text-marine-950">
                     {tExtras(extra.key as "champagne")}
                   </span>
-                  <span className="text-sm uppercase tracking-widest text-gold-600">
+                  <span className="text-sm uppercase tracking-widest text-marine-700 font-medium">
                     {extra.isIncluded
                       ? tExtras("included")
                       : extra.price > 0

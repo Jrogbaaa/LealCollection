@@ -34,10 +34,10 @@ export default async function HomePage({
             className="object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-marine-950/85 via-marine-950/20 to-marine-950/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-marine-950/90 via-marine-950/40 to-marine-950/65" />
 
         <div className="relative z-10 px-6 pb-20 md:px-12 md:pb-28">
-          <p className="text-sm uppercase tracking-[0.3em] text-gold-300">
+          <p className="text-sm uppercase tracking-[0.3em] text-marine-200">
             {t("heroKicker")}
           </p>
           <h1 className="mt-4 max-w-3xl font-display text-5xl leading-[1.05] text-white md:text-7xl">
@@ -58,7 +58,7 @@ export default async function HomePage({
       <main>
         {boat && (
           <section className="mx-auto max-w-6xl px-6 py-24 md:px-12">
-            <p className="text-sm uppercase tracking-[0.3em] text-gold-600">
+            <p className="text-sm uppercase tracking-[0.3em] text-marine-700 font-semibold">
               {t("fleetKicker")}
             </p>
             <div className="mt-4 grid gap-10 md:grid-cols-2 md:items-center">
@@ -95,7 +95,7 @@ export default async function HomePage({
                 </p>
                 <Link
                   href={`/fleet/${boat.slug}`}
-                  className="mt-6 inline-block border-b border-gold-500 pb-1 text-sm uppercase tracking-widest text-marine-950 transition hover:border-marine-950"
+                  className="mt-6 inline-block border-b border-marine-700 pb-1 text-sm uppercase tracking-widest text-marine-950 transition hover:border-marine-950"
                 >
                   {t("fleetCta")}
                 </Link>
@@ -122,7 +122,7 @@ export default async function HomePage({
 
         <section className="bg-marine-950 px-6 py-24 text-sand-50 md:px-12">
           <div className="mx-auto max-w-6xl">
-            <p className="text-sm uppercase tracking-[0.3em] text-gold-300">
+            <p className="text-sm uppercase tracking-[0.3em] text-marine-200">
               {t("extrasKicker")}
             </p>
             <h2 className="mt-4 max-w-xl font-display text-4xl">
@@ -141,7 +141,7 @@ export default async function HomePage({
                   <span className="font-display text-xl">
                     {tExtras(extra.key as "champagne")}
                   </span>
-                  <span className="text-sm uppercase tracking-widest text-gold-300">
+                  <span className="text-sm uppercase tracking-widest text-marine-200 font-medium">
                     {extra.isIncluded
                       ? tExtras("included")
                       : extra.price > 0

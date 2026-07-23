@@ -24,7 +24,7 @@
     "champagne": "Champagne on board",
     "caviar_snack": "Luxury caviar snack",
     "towel_service": "Towel service",
-    "skipper": "Skipper",
+    "skipper": "Professional skipper",
     "included": "Included"
   },
   "boat": {
@@ -102,7 +102,7 @@
     "summaryDate": "Date",
     "summarySlot": "Time",
     "summarySubtotal": "Subtotal",
-    "summaryDeposit": "Deposit due today (50%)",
+    "summaryDeposit": "Deposit due today (40%)",
     "summaryBalance": "Balance due before boarding",
     "selectDatePrompt": "Select a date to see pricing",
     "payButton": "Pay deposit — {amount}",
