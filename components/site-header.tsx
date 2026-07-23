@@ -45,11 +45,11 @@ export default function SiteHeader({
   }, [menuOpen]);
 
   const navLinkClass = isSolid
-    ? "transition hover:text-gold-600"
-    : "transition hover:text-gold-300";
+    ? "transition hover:text-marine-700"
+    : "transition hover:text-marine-200";
   const reserveLinkClass = isSolid
-    ? "rounded-full border border-gold-500/60 px-5 py-2 text-gold-600 transition hover:border-gold-500 hover:bg-gold-100/60"
-    : "rounded-full border border-gold-300/60 px-5 py-2 text-gold-100 transition hover:border-gold-300 hover:bg-gold-300/10";
+    ? "rounded-full border border-marine-950/30 px-5 py-2 text-marine-950 transition hover:border-marine-950 hover:bg-marine-950 hover:text-sand-50"
+    : "rounded-full border border-marine-200/60 px-5 py-2 text-marine-200 transition hover:border-marine-200 hover:bg-marine-200/15 hover:text-white";
 
   return (
     <header
@@ -66,7 +66,7 @@ export default function SiteHeader({
           alt="Leal Collection"
           width={288}
           height={362}
-          className="h-16 w-auto md:h-20"
+          className="h-24 w-auto md:h-32"
           style={!isSolid ? { filter: "brightness(0) invert(1)" } : undefined}
           priority
           unoptimized

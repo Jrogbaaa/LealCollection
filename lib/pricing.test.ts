@@ -68,13 +68,13 @@ describe("bookingSubtotal", () => {
 });
 
 describe("depositAmount", () => {
-  it("is 50% of the subtotal", () => {
-    expect(depositAmount(190000)).toBe(95000);
+  it("is 40% of the subtotal", () => {
+    expect(depositAmount(190000)).toBe(76000);
   });
 
   it("rounds to the nearest cent on odd subtotals", () => {
-    expect(depositAmount(100001)).toBe(50001); // .5 rounds up
-    expect(depositAmount(100003)).toBe(50002); // 50001.5 rounds up (banker's-neutral)
+    expect(depositAmount(100001)).toBe(40000); // 40000.4 -> 40000
+    expect(depositAmount(100003)).toBe(40001); // 40001.2 -> 40001
   });
 
   it("is 0 for a 0 subtotal", () => {

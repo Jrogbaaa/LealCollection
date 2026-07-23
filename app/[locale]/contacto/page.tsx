@@ -30,7 +30,7 @@ export default async function ContactPage({
       <main>
         <section className="bg-marine-950 px-6 py-28 text-sand-50 md:px-12">
           <div className="mx-auto max-w-6xl">
-            <p className="text-sm uppercase tracking-[0.3em] text-gold-300">
+            <p className="text-sm uppercase tracking-[0.3em] text-marine-200">
               {t("kicker")}
             </p>
             <h1 className="mt-4 max-w-2xl font-display text-5xl leading-[1.05] md:text-6xl">
@@ -43,7 +43,7 @@ export default async function ContactPage({
         <section className="mx-auto max-w-4xl px-6 py-24 md:px-12">
           <div className="grid gap-12 md:grid-cols-2">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-gold-600">
+              <p className="text-sm uppercase tracking-[0.3em] text-marine-700 font-semibold">
                 {t("whatsappLabel")}
               </p>
               <p className="mt-3 text-marine-900/75">{t("whatsappValue")}</p>
@@ -73,7 +73,7 @@ export default async function ContactPage({
             <p className="max-w-xl text-marine-900/75">{t("reserveNote")}</p>
             <Link
               href="/reserva"
-              className="mt-6 inline-block border-b border-gold-500 pb-1 text-sm uppercase tracking-widest text-marine-950 transition hover:border-marine-950"
+              className="mt-6 inline-block border-b border-marine-700 pb-1 text-sm uppercase tracking-widest text-marine-950 transition hover:border-marine-950"
             >
               {t("reserveButton")}
             </Link>

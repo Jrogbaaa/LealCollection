@@ -173,8 +173,12 @@ export default function BookingFlow({
     () =>
       selectableExtras
         .filter((e) => selectedExtraKeys.has(e.key))
-        .map((e) => ({ extraId: e.id, unitPrice: e.price, qty: 1 })),
-    [selectableExtras, selectedExtraKeys]
+        .map((e) => ({
+          extraId: e.id,
+          unitPrice: e.price,
+          qty: e.key === "towel_service" ? guests : 1,
+        })),
+    [selectableExtras, selectedExtraKeys, guests]
   );
 
   const priceAvailable = boat.priceFullDay > 0;

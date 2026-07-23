@@ -20,6 +20,7 @@ describe("stripe webhook", () => {
   let bookingId: number;
 
   beforeAll(async () => {
+    await db.delete(bookings).where(eq(bookings.reference, "LC-TEST01"));
     const boat = await db.query.boats.findFirst({ where: (b, { eq }) => eq(b.slug, "cranchi-32") });
     if (!boat) throw new Error("Seed data missing — run db/seed.ts first");
 

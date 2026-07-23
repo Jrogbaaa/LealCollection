@@ -24,7 +24,7 @@
     "champagne": "Champán a bordo",
     "caviar_snack": "Snack de caviar de lujo",
     "towel_service": "Servicio de toallas",
-    "skipper": "Patrón",
+    "skipper": "Patrón profesional",
     "included": "Incluido"
   },
   "boat": {
@@ -102,7 +102,7 @@
     "summaryDate": "Fecha",
     "summarySlot": "Horario",
     "summarySubtotal": "Subtotal",
-    "summaryDeposit": "Depósito a pagar hoy (50%)",
+    "summaryDeposit": "Depósito a pagar hoy (40%)",
     "summaryBalance": "Saldo a pagar antes de embarcar",
     "selectDatePrompt": "Selecciona una fecha para ver el precio",
     "payButton": "Pagar depósito — {amount}",

@@ -12,7 +12,7 @@ export type ExtraLine = {
   qty: number;
 };
 
-export const DEPOSIT_RATE = 0.5;
+export const DEPOSIT_RATE = 0.4;
 
 export function slotPrice(boat: BoatPricing, slot: Slot): number {
   switch (slot) {

@@ -46,7 +46,7 @@ export default async function ReservaPage({
       <SiteHeader variant="solid" />
 
       <main className="mx-auto min-w-0 max-w-5xl px-6 py-16 md:px-12">
-        <p className="text-sm uppercase tracking-[0.3em] text-gold-600">{t("kicker")}</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-marine-700 font-semibold">{t("kicker")}</p>
         <h1 className="mt-4 font-display text-4xl text-marine-950 md:text-5xl">
           {t("title")}
         </h1>
