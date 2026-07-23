@@ -905,3 +905,145 @@ classes, displayed amount, status guard, bound cancel action, desktop markup, an
 are unchanged. `npx tsc -b` passed with 0 errors, `git diff --check` passed, and
 `npx playwright test e2e/admin.spec.ts` passed 6/6 with no failing specs. No revision is
 required.
+
+---
+
+## Production admin image-upload discoverability and verification — Evaluator (2026-07-22)
+
+Feature id: `production-admin-image-upload`. Worktree
+`/Users/JackEllis/worktrees/admin-image-upload-live`, branch
+`feat/admin-image-upload-live`, evaluated against `main` plus the Generator's uncommitted
+application/test changes.
+
+### First Action: goal, non-goals, and acceptance criteria restated
+
+**Original goal:** Make existing boat-photo upload easy for the authenticated administrator
+to find, then prove the real path end to end: authenticate, select or drop an accepted image,
+upload it to the configured public Vercel Blob store, persist it, render it in admin and the
+public fleet, and delete the disposable test image without residue.
+
+**Non-goals:** Batch upload, image reordering, crop/compression/editing, schema changes,
+public-fleet redesign, auth redesign or extra admin accounts, and unrelated TODO cleanup.
+
+**Acceptance criteria:** Obvious photo-management links and a clearly labelled upload
+section; click-pick and single-file drag/drop for JPEG/PNG/WebP with preview, EN/ES alt text,
+and visible errors; fail-closed upload-token auth; valid public-store configuration without
+credential disclosure; real Blob URL persistence and admin/public rendering; deletion of
+both the DB row and Blob while seeded local images remain; equivalent desktop/360px access
+without overflow; clean TypeScript/build/Vitest/focused Playwright; a separate Evaluator;
+and a repeat of the complete flow after the branch is deployed to Production.
+
+### Goal Alignment
+
+**PASS.** The implementation solves the discoverability defect directly: both responsive
+boat-list treatments now say `Manage photos` and deep-link to a labelled `Boat photos`
+section with the uploader before the current gallery. The real path also passed an
+independent evaluator-created drag/drop probe through preview, Blob upload, database
+persistence, admin render, public-fleet render, UI delete, DB cleanup, and Blob cleanup.
+No application scope drift was found.
+
+### Test Results
+
+- `.env.local`: present; required evaluator variables were available. Contents were not
+  printed or written to harness files.
+- `npx tsc -b`: **0 errors**.
+- `npm run build`: **PASS**, 24 routes, including `/api/admin/upload` and the admin boat
+  routes.
+- `npx vitest run`: **25/25 passing** across 5 test files.
+- `npx playwright test`: **18/18 passing**. Passing spec files:
+  `e2e/admin-features.spec.ts`, `e2e/admin.spec.ts`, `e2e/booking-flow.spec.ts`, and
+  `e2e/public-site.spec.ts`.
+- Focused unauthenticated token probe: **PASS**; a valid generate-token-shaped request
+  returned 401 and minted no client token.
+- Focused desktop/360px discoverability probe: **PASS**; `Manage photos`, dropzone, both
+  alt-text fields, and submit action were visible/reachable; invalid-file feedback was
+  visible; page-level horizontal overflow was 0px at 360px.
+- Independent real Blob lifecycle probe: **PASS**; drag/drop preview, admin render,
+  exactly-one DB persistence, publicly readable image response, public boat-page render,
+  UI deletion, DB-row deletion, and Blob-object absence all passed. Blob-store object count
+  returned from 0 before to 0 after. Nine seeded local-image rows remained present.
+- `git diff --check`: **PASS**; no raw Blob credential pattern exists in the diff.
+
+### Criterion Audit
+
+1. **PASS — discoverability:** explicit `Manage photos` actions exist in desktop and mobile
+   boat lists and resolve to `#photos`; `Boat photos` guidance precedes the uploader.
+2. **PASS — uploader behavior:** code review plus live probes cover click-pick, actual
+   drag/drop, accepted types, preview, EN/ES alt fields, keyboard activation, disabled
+   submit without a file, and visible invalid-file/upload errors.
+3. **PASS — auth gate:** `/api/admin/upload` calls fail-closed `requireAdmin()` before token
+   generation; the unauthenticated probe received 401 with no token.
+4. **PASS — credential handling:** the real public-store token worked and remains outside
+   Git/harness output. No credential or customer/admin PII was added to source or findings.
+5. **PASS — persistence/rendering:** the evaluator's disposable image used the public Blob
+   hostname, was persisted once, was publicly readable, and appeared in both admin and the
+   public boat page.
+6. **PASS — cleanup/data safety:** the UI delete removed the probe row and object; the store
+   returned to its initial empty state and the nine seeded local-image rows remained.
+7. **PASS — responsive workflow:** desktop and 360px paths expose the same uploader; all
+   controls fit and the mobile page has no horizontal overflow.
+8. **PASS — verification:** TypeScript, production build, Vitest, full/focused Playwright,
+   and evaluator probes are green.
+9. **PARTIAL/PENDING SHIPMENT — post-deploy Production repeat:** the independent real Blob
+   lifecycle passed against the Production data/store configuration through the local
+   branch. The changed discoverability UI is not deployed yet, so the identical browser
+   flow on the live Vercel URL must be repeated immediately after merge/deployment. This is
+   the intended next shipment step, not a Generator defect.
+
+### Critical Issues / Bugs / Privacy Failures
+
+None.
+
+### UX / Maintainability Notes
+
+- The added copy and navigation are small, direct, and reuse the existing upload component.
+- The focused Playwright coverage correctly protects both responsive discovery paths and
+  the real Blob lifecycle. The real-lifecycle spec proves admin rendering and cleanup; the
+  evaluator additionally proved public-fleet rendering and underlying object absence.
+  Folding those two assertions into the permanent spec would strengthen regression
+  coverage but is not required for this shipment.
+
+### Rubric Scores
+
+| Area | Score |
+|---|---|
+| 0. Goal Alignment | 5 |
+| 1. Requirement Fit | 5 |
+| 2. Simplicity | 5 |
+| 3. User Workflow | 5 |
+| 4. Data Integrity | 5 |
+| 5. Error Handling | 5 |
+| 6. Security / Privacy | 5 |
+| 7. Maintainability | 5 |
+
+Average: **5.0**. Goal Alignment is 5. No critical bugs, privacy failures, or unmet
+pre-deployment high-priority criteria were found.
+
+### Closing Question
+
+**Did this accomplish the stated goal?** Yes. The admin can now find photo management from
+the boat list on desktop and mobile, and the evaluator independently completed and cleaned
+up the real upload/persist/admin-render/public-render/delete path.
+
+### Verdict
+
+**PASS** — no Generator revision is required before shipment.
+
+### Recommended Next Generator Task
+
+Merge/deploy the branch, wait for Vercel Production to report ready, then repeat the same
+authenticated upload → admin render → public boat render → delete flow against the live
+Production URL. Confirm the DB row and Blob object are absent afterward before declaring
+the owner request complete. Optionally strengthen the permanent real-upload spec with the
+public-page render and post-delete Blob-absence assertions used by this evaluator.
+
+### Production Verification (2026-07-22)
+
+PR #5 was merged to `main` at commit `893fe4f`, and the Vercel Production status completed
+successfully. The authenticated live admin displayed the new `Manage photos` action and
+deep-linked to `Boat photos`. A disposable PNG was selected through the live file picker,
+uploaded to the configured public Vercel Blob store, persisted once, rendered in the admin
+gallery, and rendered on `/en/fleet/cranchi-32`. The image was then deleted through the live
+admin UI. A cache-bypassed public-page check found no remaining image, a read-only database
+query found zero rows with the probe alt text, and the Blob store listed zero objects. The
+post-deploy acceptance criterion is therefore **PASS**, with no test residue.

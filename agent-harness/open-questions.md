@@ -8,3 +8,8 @@
 ## Admin mobile UX
 
 No open questions. The review and responsive treatment do not require owner input.
+
+## Production admin image upload
+
+No open questions. The owner authorized a real Production upload and cleanup; batch upload,
+reordering, cropping, compression, schema changes, and broader admin redesign are excluded.

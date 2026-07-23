@@ -1,5 +1,38 @@
 # Session
 
+**State (current):** Complete and live for `production-admin-image-upload` in worktree
+`/Users/JackEllis/worktrees/admin-image-upload-live` (branch
+`feat/admin-image-upload-live`). Live Production diagnosis found two separate issues: the
+uploader existed only at the bottom of an individual boat editor, while the Boats screen
+offered only a generic Edit link; and Production had the Blob store ID/public key but no
+`BLOB_READ_WRITE_TOKEN`, so client-token retrieval failed.
+
+- Boats now exposes explicit `Manage photos` links on desktop and mobile, deep-linking to a
+  labelled `Boat photos` section.
+- The uploader is above the current gallery with short computer/phone and file-type guidance.
+- The supplied public-store token is installed locally and in Vercel Production + Preview;
+  it remains gitignored and is not recorded in harness output.
+- Generator verification: TypeScript clean, build clean, Vitest 25/25, full Playwright
+  18/18. The upload test performed a real upload to Vercel Blob, persisted/rendered it, deleted
+  it, and a follow-up read confirmed the Blob store was empty.
+
+**Evaluator (separate subagent): PASS, rubric 5.0.** It independently reran TypeScript,
+build, Vitest 25/25, and Playwright 18/18; confirmed unauthenticated token denial; exercised
+real drag/drop preview/upload, exactly-one DB persistence, admin and public rendering, UI
+deletion, DB/Blob cleanup, seeded-image preservation, and 360px containment. The Blob store
+returned from 0 objects to 0.
+
+**Production closure:** shipped via PR #5 and deployed from `main` commit `893fe4f`. On the
+live URL, authenticated admin login exposed `Manage photos`; a disposable PNG uploaded to
+the configured public Blob store, appeared in the admin gallery and public Cranchi fleet
+page, and was deleted through the admin UI. Follow-up checks found zero matching database
+rows and zero objects in the Blob store. No test asset or row remains.
+
+**Next action:** none — implementation, evaluator review, deployment, live verification,
+cleanup, and documentation reconciliation are complete.
+
+---
+
 **State (current):** Generator phase complete for `admin-mobile-ux` in worktree
 `/Users/JackEllis/worktrees/admin-mobile-ux` (branch `codex/admin-mobile-ux`). The live
 360px audit reproduced three defects on `main`: overlapping protected-header content,
